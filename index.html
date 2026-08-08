@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ファン化の設計図 — ノウハウ発信をやめた日から、フォロワーは「ファン」になる</title>
+<meta name="description" content="SNSコンサル講義資料。属人性 × ストーリーズ × リールで作る「あなただから買う」の設計図を、6章の図解で学びます。">
+<style>
+/* ============================================================
+   ファン化の設計図 — Design System
+   配色: 無彩色(70) + ディープティール #0F766E(25) + コーラル #EA580C(5)
+   この3系統と同一色相内の濃淡以外の色相は一切使用しない
+   ============================================================ */
+:root{
+  /* --- 無彩色ベース --- */
+  --bg:#FAFAF9;
+  --card:#FFFFFF;
+  --mute:#F5F5F4;
+  --line:#E7E5E4;
+  --line2:#D6D3D1;
+  --ink:#1C1917;
+  --ink2:#57534E;
+  --ink3:#78716C;
+  --ink4:#A8A29E;
+  /* --- メイン: ディープティール(色相 約175°) --- */
+  --teal:#0F766E;
+  --teal-d:#134E4A;
+  --teal-dd:#0D5C55;
+  --teal-m:#0D9488;
+  --teal-t:#CCE8E6;
+  --teal-p:#E8F5F4;
+  --teal-pp:#F2FAF9;
+  /* --- アクセント: コーラル(色相 約20〜25°・使用面積5%以下) --- */
+  --coral:#EA580C;
+  --coral-d:#C2410C;
+  --coral-p:#FFF1E7;
+  /* --- タイポ --- */
+  --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,-apple-system,sans-serif;
+  --num:"Avenir Next","Helvetica Neue",Arial,"Hiragino Sans",sans-serif;
+  /* --- 8pxグリッド --- */
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s6:48px; --s8:64px; --s12:96px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.9;
+  letter-spacing:.01em;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{max-width:100%}
+p{margin:0 0 1.1em}
+p:last-child{margin-bottom:0}
+strong{font-weight:700}
+a{color:var(--teal)}
+
+/* ---- 整列: 単一中央カラム 880px ---- */
+.wrap{max-width:880px;margin:0 auto;padding:0 24px;width:100%}
+
+/* ---- 上部プログレスバー(JSが幅を与える。JS無効なら0幅=無害) ---- */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--teal);z-index:50;transition:width .12s linear}
+
+/* ============ ヒーロー ============ */
+.hero{background:var(--teal-d);color:#fff;padding:var(--s8) 0 var(--s8);position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+.hero .wrap{position:relative;z-index:1}
+.hero-kicker{
+  display:inline-block;font-size:12px;letter-spacing:.22em;font-family:var(--num);
+  color:var(--teal-t);border:1px solid rgba(204,232,230,.45);
+  padding:6px 14px;border-radius:999px;margin:0 0 var(--s3)
+}
+.hero h1{
+  font-size:clamp(2rem,5vw,3.4rem);line-height:1.35;margin:0 0 var(--s2);
+  font-weight:800;letter-spacing:-.01em
+}
+.hero h1 .sub-line{display:block;font-size:.46em;font-weight:600;color:var(--teal-t);margin-top:.7em;line-height:1.7;letter-spacing:.02em}
+.hero-lead{font-size:clamp(1rem,2.2vw,1.15rem);color:#E8F5F4;max-width:42em;margin:0 0 var(--s6)}
+.gets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s2)}
+.get{background:rgba(232,245,244,.10);border:1px solid rgba(204,232,230,.30);border-radius:14px;padding:20px 18px}
+.get-no{font-family:var(--num);font-size:12px;letter-spacing:.18em;color:var(--teal-t);display:block;margin-bottom:6px}
+.get-t{font-weight:700;font-size:1.02rem;line-height:1.6;color:#fff}
+.get-d{font-size:14px;line-height:1.8;color:#CCE8E6;margin-top:8px}
+
+/* ============ 目次 ============ */
+.toc{padding:var(--s12) 0 0}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s2);margin-top:var(--s4)}
+.toc-card{
+  display:block;text-decoration:none;color:inherit;background:var(--card);
+  border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:12px;
+  padding:18px 20px;transition:transform .15s ease,box-shadow .15s ease
+}
+.toc-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(28,25,23,.08)}
+.toc-no{font-family:var(--num);font-size:12px;letter-spacing:.18em;color:var(--teal);font-weight:700}
+.toc-t{font-weight:700;font-size:1rem;line-height:1.6;margin-top:4px}
+.toc-d{font-size:13px;color:var(--ink3);line-height:1.75;margin-top:6px}
+
+/* ============ 反復: セクション見出し ============ */
+.sec-label{
+  font-family:var(--num);font-size:12px;letter-spacing:.22em;color:var(--teal);
+  font-weight:700;text-transform:uppercase;margin:0 0 var(--s1)
+}
+.sec-title{font-size:clamp(1.35rem,3vw,1.8rem);line-height:1.5;margin:0;font-weight:800;letter-spacing:-.01em}
+
+/* ============ 反復: 章ヘッダー ============ */
+.chapter{padding:var(--s12) 0 0}
+.ch-head{border-top:2px solid var(--ink);padding-top:var(--s3);margin-bottom:var(--s4)}
+.ch-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ch-num{
+  font-family:var(--num);font-size:44px;font-weight:800;line-height:1;
+  color:var(--teal);letter-spacing:-.02em
+}
+.ch-en{font-family:var(--num);font-size:11px;letter-spacing:.24em;color:var(--ink4);text-transform:uppercase;font-weight:700}
+.ch-head h2{
+  font-size:clamp(1.5rem,3.5vw,2.2rem);line-height:1.45;margin:0;
+  font-weight:800;letter-spacing:-.01em
+}
+
+/* ============ 反復: この章でわかること(全章同一) ============ */
+.learn{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--teal-t);border-left:4px solid var(--teal);
+  border-radius:12px;padding:12px 16px;margin:0 0 var(--s3)
+}
+.learn-k{
+  font-size:11px;letter-spacing:.1em;font-weight:800;color:#fff;background:var(--teal);
+  padding:5px 10px;border-radius:6px;white-space:nowrap;line-height:1.4
+}
+.learn-t{font-weight:800;font-size:1rem;line-height:1.6}
+
+/* ============ 反復: 核メッセージ ============ */
+.core{
+  background:var(--teal-p);border-left:5px solid var(--teal);
+  border-radius:0 14px 14px 0;padding:20px 22px;margin:0 0 var(--s4)
+}
+.core-k{font-family:var(--num);font-size:11px;letter-spacing:.2em;color:var(--teal);font-weight:700;display:block;margin-bottom:6px}
+.core p{font-size:1.06rem;line-height:1.85;margin:0;font-weight:600;color:var(--teal-d)}
+
+/* ============ 小見出し ============ */
+h3.h3{
+  font-size:1.12rem;line-height:1.6;margin:var(--s6) 0 var(--s2);font-weight:800;
+  padding-left:14px;border-left:4px solid var(--teal-t)
+}
+.note{font-size:14px;color:var(--ink3);line-height:1.85}
+.term{background:var(--mute);border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.8;color:var(--ink2);margin:var(--s2) 0}
+.term b{color:var(--teal);font-weight:700}
+.mk{background:linear-gradient(transparent 62%,var(--teal-t) 62%);font-weight:700}
+.hot{color:var(--coral-d);font-weight:700}
+
+/* ============ 反復: 図版 ============ */
+.fig{margin:var(--s4) 0 var(--s6)}
+.fig-body{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 20px}
+.fig-body.tinted{background:var(--teal-pp)}
+.fig-cap{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13px;line-height:1.7;color:var(--ink3)}
+.fig-no{font-family:var(--num);font-weight:700;color:var(--teal);white-space:nowrap;font-size:12px;letter-spacing:.08em;padding-top:1px}
+.dgm{display:block;width:100%;height:auto;max-width:520px;margin:0 auto}
+.dgm text{font-family:var(--sans)}
+.dgm .n{font-family:var(--num)}
+.ico{display:block;width:30px;height:30px;flex:none}
+
+/* ============ カード群 ============ */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--s2)}
+.cards.c2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px}
+.card.on{background:var(--teal-p);border-color:var(--teal-t)}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-n{font-family:var(--num);font-size:12px;font-weight:800;color:var(--teal);letter-spacing:.1em}
+.card-t{font-weight:800;font-size:.98rem;line-height:1.5}
+.card-d{font-size:14px;line-height:1.8;color:var(--ink2)}
+
+/* ============ 比率バー ============ */
+.ratio{margin:var(--s2) 0 0}
+.ratio-bar{display:flex;height:56px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.ratio-seg{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;text-align:center;line-height:1.4;padding:0 6px}
+.seg-a{background:var(--teal);color:#fff}
+.seg-b{background:var(--teal-t);color:var(--teal-d)}
+.seg-c{background:var(--mute);color:var(--ink3)}
+.ratio-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--ink2)}
+.lg{display:flex;align-items:center;gap:7px}
+.sw{width:14px;height:14px;border-radius:4px;flex:none}
+
+/* ============ 対比パネル(NG/OK) ============ */
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s2)}
+.panel{border-radius:14px;padding:18px 16px;border:1px solid var(--line);background:var(--card)}
+.panel.bad{background:var(--mute);border-color:var(--line2)}
+.panel.good{background:var(--teal-p);border-color:var(--teal)}
+.panel-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;margin-bottom:10px;letter-spacing:.04em}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;font-family:var(--num);font-size:13px;font-weight:800;flex:none}
+.badge.ng{background:var(--coral);color:#fff}
+.badge.ok{background:var(--teal);color:#fff}
+.quote{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.85;color:var(--ink)}
+.panel.bad .quote{border-color:var(--line2)}
+.why{font-size:13px;line-height:1.8;color:var(--ink3);margin-top:10px}
+
+/* ============ チェックリスト/ワークシート ============ */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--s2)}
+.sheet-col{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px}
+.sheet-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--teal-d);border-bottom:2px solid var(--teal-t);padding-bottom:8px;margin-bottom:10px}
+.qlist{list-style:none;margin:0;padding:0}
+.qlist li{position:relative;padding-left:26px;font-size:14px;line-height:1.75;margin-bottom:10px;color:var(--ink2)}
+.qlist li::before{
+  content:"";position:absolute;left:0;top:5px;width:15px;height:15px;
+  border:2px solid var(--teal);border-radius:4px;background:#fff
+}
+.qlist li:last-child{margin-bottom:0}
+
+/* ============ 点リスト(図版内) ============ */
+.plist{list-style:none;margin:0;padding:0}
+.plist li{position:relative;padding-left:19px;font-size:14px;line-height:1.8;margin-bottom:7px;color:var(--ink2)}
+.plist li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.plist li:last-child{margin-bottom:0}
+.panel.bad .plist li::before{background:var(--ink4)}
+
+/* ============ 役割分担リスト ============ */
+.rowlist{list-style:none;margin:0;padding:0}
+.rowlist li{display:flex;gap:10px;font-size:14px;line-height:1.75;padding:9px 0;border-bottom:1px dashed var(--line2)}
+.rowlist li:last-child{border-bottom:none}
+.rowlist b{flex:none;width:70px;font-size:12px;color:var(--teal);font-weight:800;padding-top:4px;letter-spacing:.02em}
+
+/* ============ 週間カレンダー ============ */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+@media (max-width:900px){.cal{grid-template-columns:repeat(4,1fr)}.cal-day:last-child{grid-column:span 2}}
+@media (max-width:560px){.cal{grid-template-columns:repeat(2,1fr)}}
+.cal-day{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 8px}
+.cal-h{font-size:13px;font-weight:800;color:var(--teal-d);text-align:center;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+.chip{display:block;font-size:12px;line-height:1.5;border-radius:6px;padding:6px 5px;margin-bottom:6px;text-align:center}
+.chip b{display:block;font-weight:800;letter-spacing:.04em;margin-bottom:1px}
+.chip:last-child{margin-bottom:0}
+.chip-reel{background:var(--teal);color:#fff;font-weight:700}
+.chip-st{background:var(--teal-p);color:var(--teal-d)}
+.chip-off{background:var(--mute);color:var(--ink4)}
+
+/* ============ 全体像サマリー ============ */
+.map{display:grid;gap:12px}
+.map-row{display:grid;grid-template-columns:100px 1fr;gap:12px}
+.map-side{
+  background:var(--teal);color:#fff;border-radius:12px;display:flex;
+  align-items:center;justify-content:center;text-align:center;
+  font-weight:800;font-size:13px;line-height:1.5;padding:12px 6px
+}
+.map-main{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.map-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.map-item{background:var(--teal-pp);border:1px solid var(--teal-t);border-radius:10px;padding:10px 8px;font-size:13px;line-height:1.6;text-align:center;font-weight:700;color:var(--teal-d)}
+.map-item span{display:block;font-family:var(--num);font-size:11px;color:var(--teal);font-weight:800;letter-spacing:.1em;margin-bottom:4px}
+.map-arrow{display:flex;justify-content:center}
+.map-arrow svg{width:26px;height:16px;display:block}
+@media (max-width:560px){.map-row{grid-template-columns:1fr}.map-side{padding:8px}}
+
+/* ============ 反復: 章末アクションボックス ============ */
+.action{
+  background:var(--card);border:2px solid var(--teal);border-radius:18px;
+  padding:26px 22px;margin:var(--s6) 0 0;position:relative
+}
+.action-h{display:flex;align-items:center;gap:10px;margin-bottom:var(--s2)}
+.action-tag{
+  font-family:var(--num);font-size:11px;letter-spacing:.18em;font-weight:800;
+  background:var(--coral);color:#fff;padding:5px 10px;border-radius:6px
+}
+.action-t{font-weight:800;font-size:1.05rem}
+.todo{list-style:none;margin:0;padding:0}
+.todo li{position:relative;padding-left:32px;font-size:15px;line-height:1.8;margin-bottom:12px}
+.todo li:last-child{margin-bottom:0}
+.todo li::before{
+  content:"";position:absolute;left:0;top:4px;width:19px;height:19px;
+  border:2px solid var(--teal);border-radius:5px;background:var(--teal-pp)
+}
+.action-note{margin-top:var(--s2);font-size:13px;color:var(--ink3);line-height:1.8;border-top:1px dashed var(--line2);padding-top:12px}
+
+/* ============ 巻末 ============ */
+.outro{background:var(--teal-d);color:#fff;padding:var(--s12) 0;margin-top:var(--s12);overflow:hidden}
+.outro .sec-label{color:var(--teal-t)}
+.outro h2{font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.5;margin:0 0 var(--s3);font-weight:800}
+.outro p{color:#E8F5F4}
+.outro-box{background:rgba(232,245,244,.10);border:1px solid rgba(204,232,230,.30);border-radius:16px;padding:24px 20px;margin-top:var(--s4)}
+.outro-box .todo li{color:#fff}
+.outro-box .todo li::before{border-color:var(--teal-t);background:rgba(232,245,244,.12)}
+.cta{
+  display:inline-block;color:#fff;font-weight:800;margin-top:var(--s3);
+  font-size:1.15rem;border-bottom:3px solid var(--coral);padding-bottom:6px
+}
+.foot{padding:var(--s6) 0;font-size:13px;color:var(--ink3);text-align:center;line-height:1.9}
+
+/* ============ reveal(JSがopacity:0を付与。JS無効なら常時可視) ============ */
+.js-reveal .rv{opacity:0;transform:translateY(18px)}
+.js-reveal .rv.in{opacity:1;transform:none;transition:opacity .6s ease,transform .6s ease}
+@media (prefers-reduced-motion:reduce){
+  .js-reveal .rv{opacity:1!important;transform:none!important}
+  html{scroll-behavior:auto}
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding:0 20px}
+  .hero{padding:var(--s6) 0}
+  .chapter{padding-top:var(--s8)}
+  .toc{padding-top:var(--s8)}
+  .ch-num{font-size:36px}
+  .fig-body{padding:18px 14px}
+  .action{padding:22px 16px}
+  .outro{padding:var(--s8) 0;margin-top:var(--s8)}
+}
+@media print{
+  .progress{display:none}
+  .js-reveal .rv{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <svg class="hero-bg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="#0D9488" stroke-width="1.2" opacity=".55">
+      <circle cx="660" cy="90" r="60"/><circle cx="660" cy="90" r="105"/>
+      <circle cx="660" cy="90" r="150"/><circle cx="660" cy="90" r="195"/>
+      <circle cx="660" cy="90" r="240"/>
+    </g>
+    <g fill="none" stroke="#CCE8E6" stroke-width="1" opacity=".28">
+      <path d="M0 330 H800"/><path d="M0 262 H800"/><path d="M0 194 H800"/>
+    </g>
+    <g fill="#0D9488" opacity=".5">
+      <circle cx="120" cy="330" r="5"/><circle cx="196" cy="330" r="5"/><circle cx="272" cy="330" r="5"/>
+      <circle cx="348" cy="262" r="5"/><circle cx="424" cy="262" r="5"/><circle cx="500" cy="194" r="5"/>
+    </g>
+  </svg>
+  <div class="wrap">
+    <span class="hero-kicker">SNS CONSULTING / LECTURE 01</span>
+    <h1>ファン化の設計図
+      <span class="sub-line">ノウハウ発信をやめた日から、フォロワーは「ファン」になる</span>
+    </h1>
+    <p class="hero-lead">あなたらしさ（＝属人性）で、「あなただから買う」を作ります。<br>才能ではなく、作り方の話です。</p>
+    <div class="gets">
+      <div class="get">
+        <span class="get-no">GET 01</span>
+        <div class="get-t">伸びても売れない理由</div>
+        <div class="get-d">「共感の壁」の越え方がわかります。</div>
+      </div>
+      <div class="get">
+        <span class="get-no">GET 02</span>
+        <div class="get-t">あなたらしさの出し方</div>
+        <div class="get-d">どこまで出すかを自分で決められます。</div>
+      </div>
+      <div class="get">
+        <span class="get-no">GET 03</span>
+        <div class="get-t">明日から回る運用の型</div>
+        <div class="get-d">役割分担と1週間の予定表を持ち帰れます。</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 目次 ================= -->
+<nav class="toc" aria-label="目次">
+  <div class="wrap">
+    <p class="sec-label">Contents</p>
+    <h2 class="sec-title">6章で、ファン化を「設計」に変えます</h2>
+    <div class="toc-grid">
+      <a class="toc-card rv" href="#ch1">
+        <span class="toc-no">CHAPTER 01</span>
+        <div class="toc-t">なぜノウハウ発信だけでは埋もれるのか</div>
+        <div class="toc-d">情報は代わりがきく。人はきかない。</div>
+      </a>
+      <a class="toc-card rv" href="#ch2">
+        <span class="toc-no">CHAPTER 02</span>
+        <div class="toc-t">あなたらしさは3層でできている</div>
+        <div class="toc-d">才能ではなく作り方。3つの層で出す。</div>
+      </a>
+      <a class="toc-card rv" href="#ch3">
+        <span class="toc-no">CHAPTER 03</span>
+        <div class="toc-t">「好き」で共感を生む — 日常の出し方</div>
+        <div class="toc-d">日記で終わらせない。理由をひと言。</div>
+      </a>
+      <a class="toc-card rv" href="#ch4">
+        <span class="toc-no">CHAPTER 04</span>
+        <div class="toc-t">マイナスのストーリーが最強の武器になる</div>
+        <div class="toc-d">弱さを見せた人が愛される。</div>
+      </a>
+      <a class="toc-card rv" href="#ch5">
+        <span class="toc-no">CHAPTER 05</span>
+        <div class="toc-t">理想の未来を見せる — 憧れの作り方</div>
+        <div class="toc-d">共感は横のつながり、憧れは縦の引力。</div>
+      </a>
+      <a class="toc-card rv" href="#ch6">
+        <span class="toc-no">CHAPTER 06</span>
+        <div class="toc-t">ストーリーズ×リール 二刀流の使い方</div>
+        <div class="toc-d">リールで出会い、ストーリーズで恋に落ちる。</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= 第1章 ================= -->
+<section class="chapter" id="ch1">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">01</span>
+        <span class="ch-en">Why Knowledge Alone Fades</span>
+      </div>
+      <h2>なぜノウハウ発信だけでは埋もれるのか<br>— ファン化の原理</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">ファンが生まれる仕組み</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p>ノウハウは検索で代わりがきます。でも<span class="mk">「人」は代わりがききません。</span></p>
+    </div>
+
+    <p class="rv">毎日投稿しても数字が動かない。原因は努力の量ではありません。</p>
+
+    <h3 class="h3 rv">情報は代わりがきく。人はきかない。</h3>
+    <p class="rv">同じ話をもっと上手にまとめる人は、必ず現れます。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 258" role="img" aria-label="情報と人格の対比図">
+          <text x="83" y="20" text-anchor="middle" font-size="16" font-weight="700" fill="#57534E">情報（ノウハウ）</text>
+          <text x="257" y="20" text-anchor="middle" font-size="16" font-weight="700" fill="#0F766E">人格（あなた）</text>
+          <rect x="4" y="32" width="158" height="190" rx="12" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <rect x="178" y="32" width="158" height="190" rx="12" fill="#E8F5F4" stroke="#0F766E" stroke-width="2"/>
+          <g fill="#A8A29E">
+            <rect x="26" y="50" width="76" height="7" rx="3.5"/>
+            <rect x="26" y="63" width="58" height="7" rx="3.5"/>
+            <rect x="26" y="76" width="68" height="7" rx="3.5"/>
+          </g>
+          <g fill="#0F766E">
+            <circle cx="240" cy="64" r="14"/>
+            <path d="M262 78 L282 50 L302 78 Z"/>
+          </g>
+          <g font-size="14" fill="#57534E">
+            <text x="18" y="112">・検索で代わりがきく</text>
+            <text x="18" y="140">・上位互換に負ける</text>
+            <text x="18" y="168">・誰でもいい存在</text>
+            <text x="18" y="200" fill="#78716C">→ 比較され続ける</text>
+          </g>
+          <g font-size="14" fill="#134E4A">
+            <text x="192" y="112">・他人と比べない</text>
+            <text x="192" y="140">・「この人がいい」</text>
+            <text x="192" y="168">・続けるほど強い</text>
+            <text x="192" y="200" fill="#0F766E" font-weight="700">→ 選ばれ続ける</text>
+          </g>
+          <circle cx="170" cy="127" r="15" fill="#EA580C"/>
+          <text class="n" x="170" y="132" text-anchor="middle" font-size="14" font-weight="800" fill="#FFFFFF">VS</text>
+          <text x="170" y="244" text-anchor="middle" font-size="14" fill="#57534E">同じ情報は出せても、同じ人生は出せません。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図01</span><span>情報は複製できますが、人は複製できません。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">ノウハウ発信、3つの限界</h3>
+    <p class="rv">ノウハウ<strong>「だけ」</strong>が苦しいのです。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cards">
+          <div class="card">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="3" y="14" width="8" height="13" rx="2" fill="#A8A29E"/>
+                <rect x="19" y="4" width="8" height="23" rx="2" fill="#0F766E"/>
+                <path d="M13 10 L17 10" stroke="#78716C" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">01</span>
+            </div>
+            <div class="card-t">もっと上手い人に負ける</div>
+            <div class="card-d">同じ話をより詳しく出す人が現れます。情報の勝負は上書きされます。</div>
+          </div>
+          <div class="card">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <g fill="#D6D3D1"><circle cx="6" cy="6" r="3"/><circle cx="15" cy="6" r="3"/><circle cx="24" cy="6" r="3"/><circle cx="6" cy="15" r="3"/><circle cx="15" cy="15" r="3"/><circle cx="24" cy="15" r="3"/><circle cx="6" cy="24" r="3"/><circle cx="15" cy="24" r="3"/><circle cx="24" cy="24" r="3"/></g>
+                <path d="M4 26 L26 4" stroke="#0F766E" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">02</span>
+            </div>
+            <div class="card-t">AIでタダで手に入る</div>
+            <div class="card-d">調べれば分かることの値打ちは下がります。やり方の説明だけでは弱いのです。</div>
+          </div>
+          <div class="card">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="2" y="10" width="8" height="10" rx="2" fill="#D6D3D1"/>
+                <rect x="11" y="10" width="8" height="10" rx="2" fill="#D6D3D1"/>
+                <rect x="20" y="10" width="8" height="10" rx="2" fill="#D6D3D1"/>
+                <path d="M15 24 L15 28" stroke="#EA580C" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">03</span>
+            </div>
+            <div class="card-t">「誰でもいい」で止まる</div>
+            <div class="card-d">保存はされても、指名はされません。役に立つだけでは選ばれません。</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図02</span><span>3つとも「情報の土俵」で戦っているのが原因です。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">フォロワーとファンは、別のもの</h3>
+    <p class="rv">数字は同じ「1」でも、中身は別ものです。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="ab">
+          <div class="panel bad">
+            <div class="panel-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#A8A29E" stroke-width="2.5" stroke-dasharray="4 3"/>
+                <path d="M10 15 H20" stroke="#A8A29E" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <span>フォロワー ＝ 受け取る人</span>
+            </div>
+            <ul class="plist">
+              <li>情報を受け取るだけ</li>
+              <li>見て、そのまま通り過ぎる</li>
+              <li>発信者は誰でも代わりがきく</li>
+              <li>数は増えても、売上は動かない</li>
+            </ul>
+          </div>
+          <div class="panel good">
+            <div class="panel-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <circle cx="15" cy="15" r="5" fill="#0F766E"/>
+              </svg>
+              <span>ファン ＝ 動く人</span>
+            </div>
+            <ul class="plist">
+              <li>あなたの選び方に価値を感じる</li>
+              <li>保存する・DMを送る</li>
+              <li>買う・人にすすめる</li>
+              <li>少ない人数でも売上になる</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図03</span><span>同じ「1」でも、数えるべきはファンの人数です。</span></figcaption>
+    </figure>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 302" role="img" aria-label="ファン化ピラミッド5段階の図">
+          <polygon points="10,250 330,250 304,208 36,208" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <polygon points="36,208 304,208 278,166 62,166" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <polygon points="62,166 278,166 252,124 88,124" fill="#0F766E"/>
+          <polygon points="88,124 252,124 226,82 114,82" fill="#0D5C55"/>
+          <polygon points="114,82 226,82 200,40 140,40" fill="#134E4A"/>
+          <text x="170" y="235" text-anchor="middle" font-size="16" font-weight="700" fill="#134E4A">認知</text>
+          <text x="170" y="198" text-anchor="middle" font-size="16" font-weight="700" fill="#134E4A">興味</text>
+          <text x="170" y="145" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">共感</text>
+          <text x="170" y="109" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">信頼</text>
+          <text x="170" y="67" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">ファン</text>
+          <line x1="46" y1="166" x2="294" y2="166" stroke="#EA580C" stroke-width="2" stroke-dasharray="6 5"/>
+          <rect x="122" y="153" width="96" height="26" rx="13" fill="#EA580C"/>
+          <text x="170" y="171" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">共感の壁</text>
+          <text x="170" y="274" text-anchor="middle" font-size="14" fill="#57534E">ノウハウ発信は「興味」まで届きます。</text>
+          <text x="170" y="294" text-anchor="middle" font-size="14" fill="#0F766E" font-weight="700">その壁を越えさせるのが、あなたらしさです。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図04</span><span>多くの人は「共感の壁」の手前で止まっています。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">1万人のフォロワーより、100人のファン</h3>
+    <p class="rv">売上を決めるのは<span class="mk">ファン率</span>と値段です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 250" role="img" aria-label="フォロワー数とファン数の対比と売上の式">
+          <text x="85" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">1万人のフォロワー</text>
+          <text x="257" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#0F766E">100人のファン</text>
+          <line x1="170" y1="30" x2="170" y2="158" stroke="#E7E5E4" stroke-width="1.5"/>
+          <g fill="#D6D3D1">
+            <circle cx="18" cy="44" r="3"/><circle cx="33" cy="44" r="3"/><circle cx="48" cy="44" r="3"/><circle cx="63" cy="44" r="3"/><circle cx="78" cy="44" r="3"/><circle cx="93" cy="44" r="3"/><circle cx="108" cy="44" r="3"/><circle cx="123" cy="44" r="3"/><circle cx="138" cy="44" r="3"/><circle cx="153" cy="44" r="3"/>
+            <circle cx="18" cy="60" r="3"/><circle cx="33" cy="60" r="3"/><circle cx="48" cy="60" r="3"/><circle cx="63" cy="60" r="3"/><circle cx="78" cy="60" r="3"/><circle cx="93" cy="60" r="3"/><circle cx="108" cy="60" r="3"/><circle cx="123" cy="60" r="3"/><circle cx="138" cy="60" r="3"/><circle cx="153" cy="60" r="3"/>
+            <circle cx="18" cy="76" r="3"/><circle cx="33" cy="76" r="3"/><circle cx="48" cy="76" r="3"/><circle cx="63" cy="76" r="3"/><circle cx="78" cy="76" r="3"/><circle cx="93" cy="76" r="3"/><circle cx="108" cy="76" r="3"/><circle cx="123" cy="76" r="3"/><circle cx="138" cy="76" r="3"/><circle cx="153" cy="76" r="3"/>
+            <circle cx="18" cy="92" r="3"/><circle cx="33" cy="92" r="3"/><circle cx="48" cy="92" r="3"/><circle cx="63" cy="92" r="3"/><circle cx="78" cy="92" r="3"/><circle cx="93" cy="92" r="3"/><circle cx="108" cy="92" r="3"/><circle cx="123" cy="92" r="3"/><circle cx="138" cy="92" r="3"/><circle cx="153" cy="92" r="3"/>
+            <circle cx="18" cy="108" r="3"/><circle cx="33" cy="108" r="3"/><circle cx="48" cy="108" r="3"/><circle cx="63" cy="108" r="3"/><circle cx="78" cy="108" r="3"/><circle cx="93" cy="108" r="3"/><circle cx="108" cy="108" r="3"/><circle cx="123" cy="108" r="3"/><circle cx="138" cy="108" r="3"/><circle cx="153" cy="108" r="3"/>
+            <circle cx="18" cy="124" r="3"/><circle cx="33" cy="124" r="3"/><circle cx="48" cy="124" r="3"/><circle cx="63" cy="124" r="3"/><circle cx="78" cy="124" r="3"/><circle cx="93" cy="124" r="3"/><circle cx="108" cy="124" r="3"/><circle cx="123" cy="124" r="3"/><circle cx="138" cy="124" r="3"/><circle cx="153" cy="124" r="3"/>
+          </g>
+          <g fill="#0F766E">
+            <circle cx="63" cy="76" r="4"/><circle cx="123" cy="108" r="4"/><circle cx="33" cy="44" r="4"/>
+          </g>
+          <g fill="#0F766E">
+            <circle cx="215" cy="52" r="8"/><circle cx="243" cy="52" r="8"/><circle cx="271" cy="52" r="8"/><circle cx="299" cy="52" r="8"/>
+            <circle cx="215" cy="80" r="8"/><circle cx="243" cy="80" r="8"/><circle cx="271" cy="80" r="8"/><circle cx="299" cy="80" r="8"/>
+            <circle cx="215" cy="108" r="8"/><circle cx="243" cy="108" r="8"/><circle cx="271" cy="108" r="8"/><circle cx="299" cy="108" r="8"/>
+          </g>
+          <text x="85" y="150" text-anchor="middle" font-size="14" fill="#78716C">多くは通り過ぎます</text>
+          <text x="257" y="150" text-anchor="middle" font-size="14" fill="#0F766E" font-weight="700">DM・保存・購入で動く</text>
+          <rect x="6" y="172" width="328" height="70" rx="14" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="170" y="202" text-anchor="middle" font-size="15" font-weight="800" fill="#134E4A">売上 ＝ フォロワー数 × ファン率 × 単価</text>
+          <text x="170" y="226" text-anchor="middle" font-size="14" fill="#57534E">伸ばすべきは「数」ではなく「率」です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図05</span><span>総数を10倍にするより、ファン率を上げるほうが近道です。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>直近10投稿を「情報だけ」と「あなた入り」に仕分けます。</li>
+        <li>保存・DM・返信をくれた人を数えます。</li>
+        <li>追う数字を「数」から「率」に変えます。</li>
+      </ul>
+      <p class="action-note">できていなくて当然です。気づけたら半分進んでいます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第2章 ================= -->
+<section class="chapter" id="ch2">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">02</span>
+        <span class="ch-en">The Three Layers of You</span>
+      </div>
+      <h2>あなたらしさの正体<br>— 3つの層でできている</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">あなたらしさの出し方</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p>あなたらしさは才能ではなく<span class="mk">作り方</span>です。</p>
+    </div>
+
+    <div class="term rv"><b>あなたらしさ（＝属人性）</b>＝その人でないと成り立たない部分のことです。</div>
+
+    <p class="rv">「出せるものがない」と感じても大丈夫。<strong>まだ書き出していないだけ</strong>です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 318" role="img" aria-label="あなたらしさ3層モデルの同心円図">
+          <circle cx="170" cy="136" r="124" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="170" cy="136" r="84" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="170" cy="136" r="46" fill="#0F766E"/>
+          <text x="170" y="28" text-anchor="middle" font-size="14" fill="#78716C" letter-spacing="2">外側</text>
+          <text x="170" y="46" text-anchor="middle" font-size="15" font-weight="700" fill="#134E4A">好み・日常</text>
+          <text x="170" y="68" text-anchor="middle" font-size="14" fill="#57534E" letter-spacing="2">まん中</text>
+          <text x="170" y="84" text-anchor="middle" font-size="15" font-weight="700" fill="#134E4A">ストーリー</text>
+          <text x="170" y="128" text-anchor="middle" font-size="14" fill="#CCE8E6" letter-spacing="2">奥</text>
+          <text x="170" y="153" text-anchor="middle" font-size="17" font-weight="800" fill="#FFFFFF">価値観</text>
+          <text x="170" y="200" text-anchor="middle" font-size="14" fill="#134E4A">挫折と転機</text>
+          <text x="170" y="236" text-anchor="middle" font-size="14" fill="#57534E">食べ物・習慣</text>
+          <text x="170" y="286" text-anchor="middle" font-size="14" fill="#57534E">外側ほど出しやすく、内側ほど深く届きます。</text>
+          <text x="170" y="308" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">3つを混ぜて出すのが、らしさの作り方です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図06</span><span>外側ほど出しやすく、内側ほど深く届きます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">いちばん効くのは、奥の「価値観」</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 262" role="img" aria-label="価値観を見つける3つの問いの図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">「価値観」が見つかる3つの問い</text>
+          <rect x="6" y="30" width="328" height="62" rx="12" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="42" cy="61" r="18" fill="#0F766E"/>
+          <text class="n" x="42" y="67" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">Q1</text>
+          <text x="74" y="56" font-size="15" font-weight="700" fill="#134E4A">何を大事にしていますか</text>
+          <text x="74" y="79" font-size="14" fill="#57534E">迷ったときの選び方が決まります</text>
+          <rect x="6" y="100" width="328" height="62" rx="12" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="42" cy="131" r="18" fill="#0F766E"/>
+          <text class="n" x="42" y="137" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">Q2</text>
+          <text x="74" y="126" font-size="15" font-weight="700" fill="#134E4A">何にムッとしますか</text>
+          <text x="74" y="149" font-size="14" fill="#57534E">ゆずれない一線が見つかります</text>
+          <rect x="6" y="170" width="328" height="62" rx="12" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="42" cy="201" r="18" fill="#0F766E"/>
+          <text class="n" x="42" y="207" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">Q3</text>
+          <text x="74" y="196" font-size="15" font-weight="700" fill="#134E4A">どこへ向かっていますか</text>
+          <text x="74" y="219" font-size="14" fill="#57534E">ついていきたい理由になります</text>
+          <text x="170" y="254" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">この3つが、発信の背骨になります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図07</span><span>この3つの答えが、そのまま発信の背骨になります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">比率は「ノウハウ6：らしさ4」</h3>
+    <p class="rv">混ぜるから効きます。数字はあくまで目安です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 226" role="img" aria-label="ノウハウ6対らしさ4の比率バー図">
+          <defs><clipPath id="clipBar1"><rect x="6" y="30" width="328" height="56" rx="12"/></clipPath></defs>
+          <text x="6" y="18" font-size="15" font-weight="700" fill="#57534E">おすすめの比率（目安）</text>
+          <g clip-path="url(#clipBar1)">
+            <rect x="6" y="30" width="197" height="56" fill="#0F766E"/>
+            <rect x="203" y="30" width="131" height="56" fill="#CCE8E6"/>
+          </g>
+          <rect x="6" y="30" width="328" height="56" rx="12" fill="none" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="104" y="64" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">ノウハウ 6</text>
+          <text x="268" y="64" text-anchor="middle" font-size="16" font-weight="800" fill="#134E4A">らしさ 4</text>
+          <rect x="6" y="110" width="328" height="40" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <path d="M20 124 L32 136 M32 124 L20 136" stroke="#78716C" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="44" y="135" font-size="14" fill="#78716C">全部ノウハウ → 「誰でもいい」で終わる</text>
+          <rect x="6" y="162" width="328" height="40" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <path d="M20 176 L32 188 M32 176 L20 188" stroke="#78716C" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="44" y="187" font-size="14" fill="#78716C">全部日常 → ただの日記になる</text>
+          <text x="170" y="220" text-anchor="middle" font-size="14" fill="#57534E">混ぜるから効きます。比率はあくまで目安です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図08</span><span>1週間分を並べて、だいたい6：4に見えれば十分です。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">出すものがないなら、書き出す15問</h3>
+    <p class="rv">思いつかなくて当たり前です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="sheet">
+          <div class="sheet-col">
+            <div class="sheet-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <circle cx="15" cy="15" r="4" fill="#0F766E"/>
+              </svg>
+              <span>好きなもの（外側）</span>
+            </div>
+            <ul class="qlist">
+              <li>週に1回は必ず食べる／飲むものは？</li>
+              <li>お金をかけてしまう道具は？</li>
+              <li>休日の午前中、何をしている？</li>
+              <li>人からよく褒められる癖は？</li>
+              <li>これだけは譲れないこだわりは？</li>
+            </ul>
+          </div>
+          <div class="sheet-col">
+            <div class="sheet-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M4 22 L12 10 L18 18 L26 6" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>過去（まん中）</span>
+            </div>
+            <ul class="qlist">
+              <li>いちばん落ち込んだ時期はいつ？</li>
+              <li>そのとき、何が一番つらかった？</li>
+              <li>抜け出すきっかけになった出来事は？</li>
+              <li>遠回りしたと思う経験は？</li>
+              <li>昔の自分に一言かけるなら？</li>
+            </ul>
+          </div>
+          <div class="sheet-col">
+            <div class="sheet-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M15 4 L26 24 L15 19 L4 24 Z" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linejoin="round"/>
+              </svg>
+              <span>未来と価値観（奥）</span>
+            </div>
+            <ul class="qlist">
+              <li>3年後、どんな1日を過ごしたい？</li>
+              <li>絶対にやりたくない働き方は？</li>
+              <li>世の中の何にモヤっとする？</li>
+              <li>誰の役に立てたら一番うれしい？</li>
+              <li>お金以外で得たいものは？</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図09</span><span>書き出した答えが、そのまま投稿ネタになります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">全部を見せる必要はありません</h3>
+    <p class="rv">どこまで見せるかは、<strong>自分で決めていい</strong>のです。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 262" role="img" aria-label="出す・出さないを切り替えるスイッチの図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">つまみは、あなたが動かせます</text>
+          <rect x="6" y="36" width="328" height="52" rx="12" fill="#FAFAF9" stroke="#E7E5E4"/>
+          <text x="20" y="67" font-size="15" font-weight="700" fill="#134E4A">好み・日常</text>
+          <rect x="224" y="42" width="96" height="40" rx="20" fill="#0F766E"/>
+          <text class="n" x="252" y="68" text-anchor="middle" font-size="14" font-weight="800" fill="#FFFFFF">ON</text>
+          <circle cx="300" cy="62" r="15" fill="#FFFFFF"/>
+          <rect x="6" y="102" width="328" height="52" rx="12" fill="#FAFAF9" stroke="#E7E5E4"/>
+          <text x="20" y="133" font-size="15" font-weight="700" fill="#134E4A">過去のストーリー</text>
+          <rect x="224" y="108" width="96" height="40" rx="20" fill="#0F766E"/>
+          <text class="n" x="252" y="134" text-anchor="middle" font-size="14" font-weight="800" fill="#FFFFFF">ON</text>
+          <circle cx="300" cy="128" r="15" fill="#FFFFFF"/>
+          <rect x="6" y="168" width="328" height="52" rx="12" fill="#FAFAF9" stroke="#E7E5E4"/>
+          <text x="20" y="199" font-size="15" font-weight="700" fill="#78716C">今つらい悩み</text>
+          <rect x="224" y="174" width="96" height="40" rx="20" fill="#E7E5E4" stroke="#D6D3D1"/>
+          <text class="n" x="292" y="200" text-anchor="middle" font-size="14" font-weight="800" fill="#78716C">OFF</text>
+          <circle cx="244" cy="194" r="15" fill="#FFFFFF" stroke="#A8A29E" stroke-width="1.5"/>
+          <text x="170" y="240" text-anchor="middle" font-size="14" fill="#57534E">出す・出さないは、あなたが決めます。</text>
+          <text x="170" y="258" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">決めていること自体が、安心感になります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図10</span><span>見せる・見せないは、自分で決めて大丈夫です。</span></figcaption>
+    </figure>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="ab">
+          <div class="panel good">
+            <div class="panel-h"><span class="badge ok">○</span><span>出してよいもの</span></div>
+            <ul class="qlist">
+              <li>価値観・選び方（なぜそれを選ぶか）</li>
+              <li>好み・こだわり・毎日の習慣</li>
+              <li>乗り越えた／乗り越えつつある過去</li>
+              <li>仕事への姿勢、うまくいかなかった話</li>
+            </ul>
+          </div>
+          <div class="panel bad">
+            <div class="panel-h"><span class="badge ng">×</span><span>出さなくていいもの</span></div>
+            <ul class="qlist">
+              <li>住所・勤務先が特定できる情報</li>
+              <li>家族や第三者の顔・許可のない情報</li>
+              <li>現在進行形で深刻な悩み</li>
+              <li>他人を下げることで成り立つ話</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note" style="margin-top:16px">迷ったら「1年後の自分が見ても平気か」で決めます。</p>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図11</span><span>迷ったら出さない。それで問題ありません。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>15問のうち、答えやすい5問だけ今日埋めます。</li>
+        <li>いちばん話しやすい答えを1つ丸で囲みます。</li>
+        <li>「これは出さない」と決めた線を1行メモします。</li>
+      </ul>
+      <p class="action-note">1問書けたら、それが最初の素材です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第3章 ================= -->
+<section class="chapter" id="ch3">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">03</span>
+        <span class="ch-en">Empathy By Everyday</span>
+      </div>
+      <h2>「好き」で共感を生む<br>— 日常の出し方</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">日常が共感に変わる書き方</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p>人は<span class="mk">「同じものが好き」な相手</span>に心を開きます。</p>
+    </div>
+
+    <div class="term rv"><b>似ているほど好きになる（＝類似性の法則）</b>。共通点は実績でなくて大丈夫です。</div>
+
+    <p class="rv">ネタ選びで迷ったら、この7つから選びます。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(175px,1fr))">
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="17" r="6" fill="#0F766E"/>
+                <path d="M15 4 V8 M4 17 H8 M22 17 H26 M7 9 L10 12 M23 9 L20 12" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">01</span>
+            </div>
+            <div class="card-t">朝の習慣</div>
+            <div class="card-d">起きる時間、最初にやること。生活のリズムに人柄が出ます。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="3" y="5" width="11" height="9" rx="2" fill="#0F766E"/>
+                <rect x="16" y="5" width="11" height="9" rx="2" fill="#CCE8E6"/>
+                <rect x="3" y="16" width="24" height="9" rx="2" fill="#CCE8E6"/>
+              </svg>
+              <span class="card-n">02</span>
+            </div>
+            <div class="card-t">仕事環境</div>
+            <div class="card-d">机まわり、作業する場所、選んだ道具。語らなくても伝わります。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <circle cx="15" cy="15" r="4.5" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">03</span>
+            </div>
+            <div class="card-t">食・カフェ</div>
+            <div class="card-d">好きな店、いつものご飯。いちばん反応が返る入口です。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M4 20 L11 11 L17 18 L26 7" fill="none" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="11" cy="11" r="2.5" fill="#EA580C"/>
+              </svg>
+              <span class="card-n">04</span>
+            </div>
+            <div class="card-t">失敗・ドジ</div>
+            <div class="card-d">うまくいかなかった話。抜けているところに人は安心します。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M15 4 L24 15 L15 26 L6 15 Z" fill="#0F766E"/>
+                <circle cx="15" cy="15" r="3" fill="#E8F5F4"/>
+              </svg>
+              <span class="card-n">05</span>
+            </div>
+            <div class="card-t">ハマっているもの</div>
+            <div class="card-d">今夢中なこと。その熱がそのまま、あなたらしさになります。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M15 26 V16 M15 16 L6 6 M15 16 L24 6" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="24" cy="6" r="3" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">06</span>
+            </div>
+            <div class="card-t">選択の理由</div>
+            <div class="card-d">なぜそれを選んだのか。価値観が自然ににじみます。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="5" fill="#0F766E"/>
+                <path d="M15 2 V7 M15 23 V28 M2 15 H7 M23 15 H28 M6 6 L9 9 M24 6 L21 9 M6 24 L9 21 M24 24 L21 21" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">07</span>
+            </div>
+            <div class="card-t">感情が動いた瞬間</div>
+            <div class="card-d">うれしかった・悔しかった。気持ちはいちばん速く伝わります。</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図12</span><span>この7つを順番に回すだけで、1週間分になります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">日記との分かれ道は「ひと言」</h3>
+    <p class="rv">出来事だけなら日記です。<strong>理由をひと言</strong>足すと、共感に変わります。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 282" role="img" aria-label="出来事と理由の2段構造図">
+          <rect x="6" y="16" width="328" height="64" rx="12" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="20" y="42" font-size="15" font-weight="700" fill="#57534E">① 出来事（したこと）</text>
+          <text x="20" y="66" font-size="14" fill="#78716C">今朝5時に起きて作業しました</text>
+          <text x="170" y="102" text-anchor="middle" font-size="20" font-weight="800" fill="#0F766E">＋</text>
+          <rect x="6" y="112" width="328" height="64" rx="12" fill="#E8F5F4" stroke="#0F766E" stroke-width="2"/>
+          <text x="20" y="138" font-size="15" font-weight="700" fill="#0F766E">② 理由（あなたの価値観）</text>
+          <text x="20" y="162" font-size="14" fill="#134E4A">静かな朝は、選択をまちがえないから</text>
+          <path d="M170 182 V202" stroke="#0F766E" stroke-width="2.5"/>
+          <path d="M164 198 L170 206 L176 198 Z" fill="#0F766E"/>
+          <rect x="76" y="212" width="188" height="44" rx="22" fill="#0F766E"/>
+          <text x="170" y="240" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">共感が生まれる</text>
+          <text x="170" y="274" text-anchor="middle" font-size="14" fill="#57534E">出来事で終わらせず、理由をひと言。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図13</span><span>②のひと言があるかどうかで、日記と共感が分かれます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">ひと言の足し方は、たった3語</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 276" role="img" aria-label="出来事にひと言を足す言い換えの図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">出来事のあとに、ひと言足すだけ</text>
+          <rect x="6" y="30" width="328" height="54" rx="14" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <polygon points="42,83 74,83 42,98" fill="#F5F5F4"/>
+          <path d="M42 84 L42 97 L70 84" fill="none" stroke="#D6D3D1" stroke-width="1"/>
+          <text x="24" y="63" font-size="15" fill="#78716C">今日もカフェで作業しました</text>
+          <rect x="6" y="108" width="104" height="38" rx="19" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="58" y="133" text-anchor="middle" font-size="15" font-weight="700" fill="#0F766E">だって</text>
+          <rect x="118" y="108" width="104" height="38" rx="19" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="170" y="133" text-anchor="middle" font-size="15" font-weight="700" fill="#0F766E">なので</text>
+          <rect x="230" y="108" width="104" height="38" rx="19" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="282" y="133" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">と思っていて</text>
+          <path d="M170 152 V172" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="163,168 177,168 170,179" fill="#0F766E"/>
+          <rect x="6" y="184" width="328" height="66" rx="14" fill="#E8F5F4" stroke="#0F766E" stroke-width="2"/>
+          <text x="24" y="211" font-size="14" fill="#134E4A">今日もカフェで作業しました。</text>
+          <text x="24" y="235" font-size="14" font-weight="700" fill="#134E4A">なので、家だと家事に逃げちゃうんです</text>
+          <text x="170" y="268" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">理由が見えると、人柄が伝わります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図14</span><span>この3語を続けるだけで、自然に理由が出てきます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">同じネタで比べてみましょう</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="ab">
+          <div class="panel bad">
+            <div class="panel-h"><span class="badge ng">NG</span><span>日記で終わっている</span></div>
+            <p class="quote">今日はいつものカフェで作業してきました！ここのコーヒー、本当においしいんです。</p>
+            <p class="why">読み手は「へえ」で終わります。人柄が見えないので、記憶に残りません。</p>
+          </div>
+          <div class="panel good">
+            <div class="panel-h"><span class="badge ok">OK</span><span>理由がついている</span></div>
+            <p class="quote">今日もカフェで作業。家だとつい家事に逃げるので、あえて<strong>逃げ場のない席</strong>に3時間だけお金を払っています。</p>
+            <p class="why">「弱さを前提に場所を選ぶ人」だと伝わります。同じ弱さを持つ人に届きます。</p>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図15</span><span>足したのはひと言だけですが、伝わり方は別物です。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">回数の決め方 — 1日2〜5本</h3>
+    <p class="rv">出来ばえより<strong>「毎日いること」</strong>が効きます。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 190" role="img" aria-label="1日のストーリーズ頻度設計のタイムライン">
+          <text x="170" y="16" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">ストーリーズは1日2〜5本</text>
+          <rect x="8" y="30" width="104" height="34" rx="10" fill="#0F766E"/>
+          <text x="60" y="53" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">日常系を1本</text>
+          <path d="M60 64 L53 86" stroke="#0F766E" stroke-width="2"/>
+          <line x1="20" y1="96" x2="320" y2="96" stroke="#D6D3D1" stroke-width="2"/>
+          <text x="130" y="76" text-anchor="middle" font-size="14" fill="#78716C">ノウハウ</text>
+          <text x="210" y="76" text-anchor="middle" font-size="14" fill="#78716C">やりとり</text>
+          <text x="290" y="76" text-anchor="middle" font-size="14" fill="#78716C">告知</text>
+          <circle cx="50" cy="96" r="11" fill="#0F766E"/>
+          <circle cx="130" cy="96" r="11" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="210" cy="96" r="11" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="290" cy="96" r="11" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <g font-size="14" fill="#57534E" text-anchor="middle">
+            <text x="50" y="126">朝</text>
+            <text x="130" y="126">昼</text>
+            <text x="210" y="126">夕</text>
+            <text x="290" y="126">夜</text>
+          </g>
+          <text x="170" y="158" text-anchor="middle" font-size="14" fill="#57534E">毎日、最低1本は日常系を入れます。</text>
+          <text x="170" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">本数より「毎日いること」が効きます。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図16</span><span>日常系の1本が、関係をつないでくれます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">会う回数が、近さを決めます</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 228" role="img" aria-label="会う回数と親しみの関係を示す棒グラフ">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">会う回数と、近さの関係</text>
+          <line x1="44" y1="36" x2="44" y2="176" stroke="#78716C" stroke-width="1.5"/>
+          <line x1="44" y1="176" x2="330" y2="176" stroke="#78716C" stroke-width="1.5"/>
+          <text x="22" y="106" text-anchor="middle" font-size="14" fill="#78716C">近さ</text>
+          <rect x="76" y="136" width="62" height="40" rx="6" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <rect x="166" y="96" width="62" height="80" rx="6" fill="#0D9488"/>
+          <rect x="256" y="52" width="62" height="124" rx="6" fill="#0F766E"/>
+          <text x="107" y="196" text-anchor="middle" font-size="14" fill="#57534E">週1回</text>
+          <text x="197" y="196" text-anchor="middle" font-size="14" fill="#57534E">週3回</text>
+          <text x="287" y="196" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">毎日</text>
+          <text x="170" y="220" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">上手さより、回数のほうが効きます。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図17</span><span>上手さより、会う回数のほうが効きます。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>日常ネタ7選から1つ選び、ストーリーズを1本出します。</li>
+        <li>その1本に「なぜそうしているか」をひと言つけます。</li>
+        <li>明日の朝に出すネタを、今のうちに決めます。</li>
+      </ul>
+      <p class="action-note">あなたの言葉のほうが届きます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第4章 ================= -->
+<section class="chapter" id="ch4">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">04</span>
+        <span class="ch-en">Scars Become Assets</span>
+      </div>
+      <h2>マイナスのストーリーが<br>最強の武器になる理由</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">弱さを強みに変える順番</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p>完璧な人は憧れられますが、<span class="mk">弱さを見せた人は愛されます。</span></p>
+    </div>
+
+    <p class="rv">届くのはいつも<strong>うまくいかなかった話</strong>です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cards">
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M6 15 H24" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M18 9 L24 15 L18 21" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="6" cy="15" r="3" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">01</span>
+            </div>
+            <div class="card-t">先に開くと、返ってくる</div>
+            <div class="card-d">こちらが先に開くと、相手も開いてくれます。心は順番でできています。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="4" y="18" width="7" height="8" rx="2" fill="#0F766E"/>
+                <rect x="19" y="6" width="7" height="20" rx="2" fill="#CCE8E6"/>
+                <path d="M4 12 L11 12" stroke="#EA580C" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">02</span>
+            </div>
+            <div class="card-t">応援したくなる心理</div>
+            <div class="card-d">完成した人より、途中の人。まだ足りない人を応援したくなる心のクセです（アンダードッグ効果）。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="11" cy="15" r="8" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <circle cx="19" cy="15" r="8" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <path d="M15 8.5 A8 8 0 0 1 15 21.5 A8 8 0 0 1 15 8.5 Z" fill="#CCE8E6"/>
+              </svg>
+              <span class="card-n">03</span>
+            </div>
+            <div class="card-t">「私と同じだ」の接点</div>
+            <div class="card-d">実績は共通点になりません。でも、つまずきは共通点になります。</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図18</span><span>3つとも「距離を縮める」働きをしています。</span></figcaption>
+    </figure>
+
+    <div class="term rv"><b>先に開くと返ってくる（＝自己開示の返報性）</b>。</div>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 226" role="img" aria-label="自己開示の返報性を示す往復の図">
+          <rect x="14" y="70" width="120" height="80" rx="14" fill="#0F766E"/>
+          <text x="74" y="104" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">あなた</text>
+          <text x="74" y="128" text-anchor="middle" font-size="14" fill="#CCE8E6">先に開く</text>
+          <rect x="206" y="70" width="120" height="80" rx="14" fill="#E8F5F4" stroke="#0F766E" stroke-width="2"/>
+          <text x="266" y="104" text-anchor="middle" font-size="16" font-weight="800" fill="#134E4A">読み手</text>
+          <text x="266" y="128" text-anchor="middle" font-size="14" fill="#57534E">心を開く</text>
+          <path d="M134 88 C160 50 180 50 204 84" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="198,74 208,90 195,88" fill="#0F766E"/>
+          <text x="170" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">自己開示</text>
+          <path d="M206 132 C180 170 160 170 136 136" fill="none" stroke="#0D9488" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <polygon points="142,146 132,130 145,132" fill="#0D9488"/>
+          <text x="170" y="186" text-anchor="middle" font-size="14" font-weight="700" fill="#0D9488">信頼・反応が返る</text>
+          <text x="170" y="216" text-anchor="middle" font-size="14" fill="#57534E">先に開いた側にしか、返ってきません。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図19</span><span>先に開いた側にしか、返ってきません。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">V字の語り方 — どん底・転機・今</h3>
+    <p class="rv">この3つだけで物語になります。締めは「まだ道の途中」です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 270" role="img" aria-label="V字ストーリーテリングの曲線図">
+          <text x="8" y="20" font-size="14" fill="#A8A29E">↑ 状態</text>
+          <text x="332" y="182" text-anchor="end" font-size="14" fill="#A8A29E">時間 →</text>
+          <path d="M40 60 C80 110 100 170 140 186 C180 172 205 148 246 110" fill="none" stroke="#0F766E" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M246 110 L318 64" fill="none" stroke="#0D9488" stroke-width="3" stroke-dasharray="7 6" stroke-linecap="round"/>
+          <circle cx="40" cy="60" r="6" fill="#A8A29E"/>
+          <circle cx="140" cy="186" r="9" fill="#EA580C"/>
+          <circle cx="246" cy="110" r="9" fill="#0F766E"/>
+          <circle cx="318" cy="64" r="6" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.5"/>
+          <text x="40" y="42" text-anchor="middle" font-size="14" fill="#78716C">過去</text>
+          <text x="330" y="46" text-anchor="end" font-size="14" font-weight="700" fill="#0F766E">③ 現在（道の途中）</text>
+          <path d="M246 120 V190" stroke="#0F766E" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <rect x="20" y="196" width="150" height="50" rx="12" fill="#FFF1E7" stroke="#EA580C" stroke-width="1.5"/>
+          <text x="95" y="218" text-anchor="middle" font-size="14" font-weight="700" fill="#C2410C">① どん底</text>
+          <text x="95" y="238" text-anchor="middle" font-size="14" fill="#78716C">具体的な数字で</text>
+          <rect x="186" y="196" width="148" height="50" rx="12" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="260" y="218" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">② 転機</text>
+          <text x="260" y="238" text-anchor="middle" font-size="14" fill="#57534E">出会い・気づき</text>
+          <text x="170" y="264" text-anchor="middle" font-size="14" fill="#57534E">「まだ完璧じゃない」で締めるのがコツです。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図20</span><span>上がりきらない線のまま終えるのがコツです。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">出せるマイナスは、この4か所</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 272" role="img" aria-label="語れる素材が眠っている4か所の図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">語れる素材が眠っている4か所</text>
+          <rect x="6" y="30" width="328" height="48" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="36" cy="54" r="15" fill="#0F766E"/>
+          <text class="n" x="36" y="59" text-anchor="middle" font-size="13" font-weight="800" fill="#FFFFFF">01</text>
+          <text x="64" y="60" font-size="15" font-weight="700" fill="#134E4A">過去の挫折</text>
+          <rect x="6" y="86" width="328" height="48" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="36" cy="110" r="15" fill="#0F766E"/>
+          <text class="n" x="36" y="115" text-anchor="middle" font-size="13" font-weight="800" fill="#FFFFFF">02</text>
+          <text x="64" y="116" font-size="15" font-weight="700" fill="#134E4A">苦手なこと・引け目</text>
+          <rect x="6" y="142" width="328" height="48" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="36" cy="166" r="15" fill="#0F766E"/>
+          <text class="n" x="36" y="171" text-anchor="middle" font-size="13" font-weight="800" fill="#FFFFFF">03</text>
+          <text x="64" y="172" font-size="15" font-weight="700" fill="#134E4A">反応がなかった投稿</text>
+          <rect x="6" y="198" width="328" height="48" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="36" cy="222" r="15" fill="#0F766E"/>
+          <text class="n" x="36" y="227" text-anchor="middle" font-size="13" font-weight="800" fill="#FFFFFF">04</text>
+          <text x="64" y="228" font-size="15" font-weight="700" fill="#134E4A">遠回りした時間</text>
+          <text x="170" y="264" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">どこかに必ず、語れる話があります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図21</span><span>この4つのどこかに、必ず語れる素材があります。</span></figcaption>
+    </figure>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 302" role="img" aria-label="出せるマイナスを整理した4象限図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">出せるマイナスの4象限</text>
+          <rect x="46" y="30" width="142" height="110" fill="#0F766E"/>
+          <rect x="188" y="30" width="142" height="110" fill="#F5F5F4"/>
+          <rect x="46" y="140" width="142" height="110" fill="#CCE8E6"/>
+          <rect x="188" y="140" width="142" height="110" fill="#F5F5F4"/>
+          <line x1="46" y1="30" x2="46" y2="250" stroke="#78716C" stroke-width="1.5"/>
+          <line x1="46" y1="250" x2="330" y2="250" stroke="#78716C" stroke-width="1.5"/>
+          <line x1="188" y1="30" x2="188" y2="250" stroke="#FFFFFF" stroke-width="2"/>
+          <line x1="46" y1="140" x2="330" y2="140" stroke="#FFFFFF" stroke-width="2"/>
+          <path d="M108 46 L115 55 L128 38" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="117" y="92" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">乗り越えた挫折</text>
+          <text x="117" y="114" text-anchor="middle" font-size="14" fill="#CCE8E6">最強の資産になる</text>
+          <path d="M251 40 L267 56 M267 40 L251 56" stroke="#78716C" stroke-width="3" stroke-linecap="round"/>
+          <text x="259" y="92" text-anchor="middle" font-size="15" font-weight="800" fill="#78716C">今つらい悩み</text>
+          <text x="259" y="114" text-anchor="middle" font-size="14" font-weight="700" fill="#57534E">今は出さない</text>
+          <circle cx="117" cy="168" r="8" fill="none" stroke="#0F766E" stroke-width="3"/>
+          <text x="117" y="202" text-anchor="middle" font-size="15" font-weight="800" fill="#134E4A">小さな失敗</text>
+          <text x="117" y="224" text-anchor="middle" font-size="14" fill="#57534E">親しみに変わる</text>
+          <circle cx="259" cy="168" r="8" fill="none" stroke="#A8A29E" stroke-width="3"/>
+          <text x="259" y="202" text-anchor="middle" font-size="15" font-weight="800" fill="#78716C">今日のドジ</text>
+          <text x="259" y="224" text-anchor="middle" font-size="14" fill="#78716C">軽くなら出せる</text>
+          <text x="117" y="272" text-anchor="middle" font-size="14" fill="#57534E">過去のこと</text>
+          <text x="259" y="272" text-anchor="middle" font-size="14" fill="#57534E">現在進行形</text>
+          <text x="24" y="86" text-anchor="middle" font-size="14" fill="#78716C">深い</text>
+          <text x="24" y="200" text-anchor="middle" font-size="14" fill="#78716C">浅い</text>
+          <text x="170" y="296" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">出すのは「乗り越えた過去」だけで十分です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図22</span><span>右上（今つらい・深い）だけは、時間を置きます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">出す前の安全装置</h3>
+    <p class="rv">出すのは<strong>乗り越えた過去</strong>だけです。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 262" role="img" aria-label="出す・待つを判断する3段の信号図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">出す前に、信号を確認します</text>
+          <rect x="20" y="32" width="76" height="200" rx="18" fill="#F5F5F4" stroke="#D6D3D1" stroke-width="1.5"/>
+          <circle cx="58" cy="76" r="26" fill="#0F766E"/>
+          <circle cx="58" cy="132" r="26" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="58" cy="188" r="26" fill="#E7E5E4" stroke="#D6D3D1" stroke-width="1.5"/>
+          <text x="112" y="70" font-size="15" font-weight="700" fill="#0F766E">出せる</text>
+          <text x="112" y="92" font-size="14" fill="#57534E">乗り越えた過去の話</text>
+          <text x="112" y="126" font-size="15" font-weight="700" fill="#134E4A">軽くならOK</text>
+          <text x="112" y="148" font-size="14" fill="#57534E">今日のちょっとした失敗</text>
+          <text x="112" y="182" font-size="15" font-weight="700" fill="#78716C">今は出さない</text>
+          <text x="112" y="204" font-size="14" fill="#78716C">今つらい、深い悩み</text>
+          <text x="170" y="252" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">これは、あなたを守るルールです。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図23</span><span>出すのは「乗り越えた過去」だけで十分です。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>第2章の「過去5問」から、語れる挫折を1つ選びます。</li>
+        <li>どん底・転機・今の3行で、V字の下書きを書きます。</li>
+        <li>最後の1行を「まだ道の途中です」に書き換えます。</li>
+      </ul>
+      <p class="action-note">出しにくいなら、まだ早いサインです。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第5章 ================= -->
+<section class="chapter" id="ch5">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">05</span>
+        <span class="ch-en">Show The Future</span>
+      </div>
+      <h2>理想の未来を見せる<br>— 旅とノマドが「憧れ」を作る</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">憧れを自慢にしない見せ方</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p>共感だけでは、買うところまで届きません。<span class="mk">「この人みたいになりたい」</span>が行動を生みます。</p>
+    </div>
+
+    <p class="rv">共感は距離を縮め、憧れは引き上げます。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 302" role="img" aria-label="共感と憧れの2軸マトリクス">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">共感 × 憧れ の2軸</text>
+          <rect x="46" y="30" width="142" height="110" fill="#F5F5F4"/>
+          <rect x="188" y="30" width="142" height="110" fill="#0F766E"/>
+          <rect x="46" y="140" width="142" height="110" fill="#FAFAF9"/>
+          <rect x="188" y="140" width="142" height="110" fill="#CCE8E6"/>
+          <line x1="46" y1="30" x2="46" y2="250" stroke="#78716C" stroke-width="1.5"/>
+          <line x1="46" y1="250" x2="330" y2="250" stroke="#78716C" stroke-width="1.5"/>
+          <line x1="188" y1="30" x2="188" y2="250" stroke="#FFFFFF" stroke-width="2"/>
+          <line x1="46" y1="140" x2="330" y2="140" stroke="#FFFFFF" stroke-width="2"/>
+          <rect x="214" y="36" width="92" height="24" rx="12" fill="#EA580C"/>
+          <text x="260" y="53" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">ここを狙う</text>
+          <text x="259" y="96" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">ファン</text>
+          <text x="259" y="118" text-anchor="middle" font-size="14" fill="#CCE8E6">この人から買いたい</text>
+          <text x="117" y="96" text-anchor="middle" font-size="16" font-weight="800" fill="#78716C">遠い有名人</text>
+          <text x="117" y="118" text-anchor="middle" font-size="14" fill="#78716C">すごいけど遠い</text>
+          <text x="117" y="202" text-anchor="middle" font-size="16" font-weight="800" fill="#A8A29E">通りすがり</text>
+          <text x="117" y="224" text-anchor="middle" font-size="14" fill="#A8A29E">すぐ忘れられる</text>
+          <text x="259" y="202" text-anchor="middle" font-size="16" font-weight="800" fill="#134E4A">友達</text>
+          <text x="259" y="224" text-anchor="middle" font-size="14" fill="#57534E">楽しいけど買わない</text>
+          <text x="117" y="272" text-anchor="middle" font-size="14" fill="#57534E">共感が低い</text>
+          <text x="259" y="272" text-anchor="middle" font-size="14" fill="#57534E">共感が高い</text>
+          <text x="20" y="82" text-anchor="middle" font-size="14" fill="#78716C"><tspan x="20">憧れ</tspan><tspan x="20" dy="17">高</tspan></text>
+          <text x="20" y="192" text-anchor="middle" font-size="14" fill="#78716C"><tspan x="20">憧れ</tspan><tspan x="20" dy="17">低</tspan></text>
+          <text x="170" y="296" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">共感だけでも、憧れだけでも足りません。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図24</span><span>右上に入って初めて「買いたい」が生まれます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">憧れ発信の型は、この4つ</h3>
+    <p class="rv"><strong>場所と時間の自由</strong>が写る瞬間を切り取るだけです。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(175px,1fr))">
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <circle cx="15" cy="4" r="3.5" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">01</span>
+            </div>
+            <div class="card-t">旅先からの作業</div>
+            <div class="card-d">移動しても仕事が回っていることが伝わります。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="3" y="8" width="24" height="14" rx="3" fill="#CCE8E6"/>
+                <rect x="3" y="8" width="9" height="14" rx="3" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">02</span>
+            </div>
+            <div class="card-t">平日の昼のカフェ</div>
+            <div class="card-d">時間を自分で決めていることが伝わります。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <g fill="#CCE8E6"><circle cx="7" cy="7" r="3.5"/><circle cx="23" cy="7" r="3.5"/><circle cx="7" cy="23" r="3.5"/></g>
+                <path d="M7 7 L23 23" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="23" cy="23" r="4.5" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">03</span>
+            </div>
+            <div class="card-t">場所を選ばない</div>
+            <div class="card-d">「どこでもいい」が、そのまま自由の証拠です。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="4" y="6" width="15" height="15" rx="4" fill="#CCE8E6"/>
+                <rect x="11" y="9" width="15" height="15" rx="4" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">04</span>
+            </div>
+            <div class="card-t">平日の家族の時間</div>
+            <div class="card-d">何を大事にしている人かが伝わります。</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図25</span><span>どれも「時間を自分で決めている」証拠になります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">自慢に見えない見せ方 3原則</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cards">
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <path d="M4 24 C10 24 12 8 20 8" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="24" cy="8" r="4" fill="#0F766E"/>
+              </svg>
+              <span class="card-n">01</span>
+            </div>
+            <div class="card-t">結果ではなく、道のりを語る</div>
+            <div class="card-d">到達点だけだと自慢になります。道のりを見せると物語になります。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="4" y="16" width="8" height="10" rx="2" fill="#D6D3D1"/>
+                <rect x="18" y="6" width="8" height="20" rx="2" fill="#0F766E"/>
+                <path d="M8 12 L8 8" stroke="#78716C" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">02</span>
+            </div>
+            <div class="card-t">他人ではなく、過去の自分と比べる</div>
+            <div class="card-d">比べる相手を自分にすれば、見下しになりません。</div>
+          </div>
+          <div class="card on">
+            <div class="card-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="9" cy="15" r="5" fill="#CCE8E6" stroke="#0F766E" stroke-width="2"/>
+                <circle cx="23" cy="15" r="5" fill="#0F766E"/>
+                <path d="M15 15 H18" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <span class="card-n">03</span>
+            </div>
+            <div class="card-t">フォロワーの未来として語る</div>
+            <div class="card-d">「あなたにも選べる道です」。主語を相手に渡します。</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図26</span><span>同じ写真でも、3つを通すと伝わり方が変わります。</span></figcaption>
+    </figure>
+
+    <div class="term rv">なお、成果の出方や時期には個人差があります。できたことを正直に書きます。</div>
+
+    <h3 class="h3 rv">憧れ：共感 ＝ 2：8 が目安</h3>
+    <p class="rv">土台は共感です。憧れはときどきで足ります。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 146" role="img" aria-label="共感8対憧れ2のバランスバー">
+          <defs><clipPath id="clipBar2"><rect x="6" y="30" width="328" height="56" rx="12"/></clipPath></defs>
+          <text x="6" y="18" font-size="15" font-weight="700" fill="#57534E">共感と憧れのバランス（目安）</text>
+          <g clip-path="url(#clipBar2)">
+            <rect x="6" y="30" width="262" height="56" fill="#CCE8E6"/>
+            <rect x="268" y="30" width="66" height="56" fill="#0F766E"/>
+          </g>
+          <rect x="6" y="30" width="328" height="56" rx="12" fill="none" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="137" y="64" text-anchor="middle" font-size="16" font-weight="800" fill="#134E4A">共感 8</text>
+          <text x="301" y="64" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">憧れ 2</text>
+          <text x="170" y="112" text-anchor="middle" font-size="14" fill="#57534E">憧れだけだと、遠い人になります。</text>
+          <text x="170" y="136" text-anchor="middle" font-size="14" fill="#57534E">共感だけだと、行動が起きません。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図27</span><span>迷ったら共感を厚くするほうが、うまくいきます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">人が買うのは「その先の生活」</h3>
+    <p class="rv">ゴールが見えない相手は、動けません。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 250" role="img" aria-label="商品を未来の生活に変換する図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">フォロワーが本当に買っているもの</text>
+          <rect x="6" y="34" width="130" height="44" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="71" y="62" text-anchor="middle" font-size="14" fill="#78716C">講座・商品</text>
+          <path d="M142 56 H162" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="160,50 170,56 160,62" fill="#0F766E"/>
+          <rect x="174" y="34" width="160" height="44" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="254" y="62" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">悩まなくていい毎日</text>
+          <rect x="6" y="92" width="130" height="44" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="71" y="120" text-anchor="middle" font-size="14" fill="#78716C">ノウハウ</text>
+          <path d="M142 114 H162" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="160,108 170,114 160,120" fill="#0F766E"/>
+          <rect x="174" y="92" width="160" height="44" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="254" y="120" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">自分で選べる自信</text>
+          <rect x="6" y="150" width="130" height="44" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="71" y="178" text-anchor="middle" font-size="14" fill="#78716C">時間の使い方</text>
+          <path d="M142 172 H162" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="160,166 170,172 160,178" fill="#0F766E"/>
+          <rect x="174" y="150" width="160" height="44" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="254" y="178" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">家族と過ごす平日</text>
+          <rect x="6" y="206" width="328" height="40" rx="10" fill="#0F766E"/>
+          <text x="170" y="231" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">売るのは商品、届けるのは生活です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図28</span><span>あなたの発信も、右側の言葉で語れているか見直します。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>直近1か月の投稿を、共感と憧れに仕分けて数えます。</li>
+        <li>憧れの投稿を1本、「過去の自分との差」で書き直します。</li>
+        <li>商品の先にある「生活」を1文で書きます。</li>
+      </ul>
+      <p class="action-note">「昨日より少し先」で十分伝わります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第6章 ================= -->
+<section class="chapter" id="ch6">
+  <div class="wrap">
+    <div class="ch-head rv">
+      <div class="ch-meta">
+        <span class="ch-num">06</span>
+        <span class="ch-en">Reels × Stories</span>
+      </div>
+      <h2>ストーリーズ×リール<br>二刀流の使い方</h2>
+    </div>
+
+    <div class="learn rv">
+      <span class="learn-k">この章でわかること</span>
+      <span class="learn-t">毎週まわる運用の型</span>
+    </div>
+
+    <div class="core rv">
+      <span class="core-k">CORE MESSAGE</span>
+      <p><span class="mk">リールで出会い、ストーリーズで恋に落ちる。</span></p>
+    </div>
+
+    <p class="rv">役割がまったく違います。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="ab">
+          <div class="panel good">
+            <div class="panel-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <rect x="5" y="4" width="20" height="22" rx="4" fill="none" stroke="#0F766E" stroke-width="2.5"/>
+                <path d="M13 11 L20 15 L13 19 Z" fill="#0F766E"/>
+              </svg>
+              <span>リール ＝ 出会いの道具</span>
+            </div>
+            <ul class="rowlist">
+              <li><b>役割</b><span>まだ知らない人に見つけてもらう</span></li>
+              <li><b>見せる物</b><span>世界観の入口。ノウハウ、日常の動画</span></li>
+              <li><b>効き方</b><span>保存される。あとから効いてくる</span></li>
+              <li><b>本数</b><span>週2〜3本（ノウハウ2：らしさ1）</span></li>
+            </ul>
+          </div>
+          <div class="panel good">
+            <div class="panel-h">
+              <svg class="ico" viewBox="0 0 30 30" aria-hidden="true">
+                <circle cx="15" cy="15" r="11" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-dasharray="5 3"/>
+                <circle cx="15" cy="15" r="4" fill="#0F766E"/>
+              </svg>
+              <span>ストーリーズ ＝ 関係の道具</span>
+            </div>
+            <ul class="rowlist">
+              <li><b>役割</b><span>いまのフォロワーと会う回数を増やす</span></li>
+              <li><b>見せる物</b><span>らしさの主戦場。日常・価値観・裏側</span></li>
+              <li><b>効き方</b><span>やりとり。質問箱・アンケートで会話に</span></li>
+              <li><b>本数</b><span>毎日2〜5本（24時間で消える気軽さ）</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図29</span><span>同じ内容を両方に流さず、担当を分けます。</span></figcaption>
+    </figure>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 208" role="img" aria-label="リールだけ・ストーリーズだけの場合に起きることの図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">片方だけだと、こうなります</text>
+          <rect x="6" y="30" width="140" height="48" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="76" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#78716C">リールだけ</text>
+          <path d="M152 54 H166" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="164,48 176,54 164,60" fill="#0F766E"/>
+          <rect x="182" y="30" width="152" height="48" rx="10" fill="#FFFFFF" stroke="#D6D3D1"/>
+          <text x="258" y="51" text-anchor="middle" font-size="14" fill="#57534E">知られているのに</text>
+          <text x="258" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#78716C">売れない</text>
+          <rect x="6" y="94" width="140" height="48" rx="10" fill="#F5F5F4" stroke="#D6D3D1"/>
+          <text x="76" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#78716C">ストーリーズだけ</text>
+          <path d="M152 118 H166" stroke="#0F766E" stroke-width="2.5"/>
+          <polygon points="164,112 176,118 164,124" fill="#0F766E"/>
+          <rect x="182" y="94" width="152" height="48" rx="10" fill="#FFFFFF" stroke="#D6D3D1"/>
+          <text x="258" y="115" text-anchor="middle" font-size="14" fill="#57534E">仲はいいのに</text>
+          <text x="258" y="134" text-anchor="middle" font-size="14" font-weight="700" fill="#78716C">広がらない</text>
+          <rect x="6" y="158" width="328" height="42" rx="10" fill="#0F766E"/>
+          <text x="170" y="185" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">両方そろって、はじめて回ります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図30</span><span>両方そろって、はじめてファン化が回ります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">ファン化の道すじ</h3>
+    <p class="rv">ファンは<strong>決まった順番</strong>で階段を上がってきます。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <svg class="dgm" viewBox="0 0 340 366" role="img" aria-label="ファン化の動線フロー図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">ファン化の動線</text>
+          <line x1="58" y1="32" x2="58" y2="124" stroke="#CCE8E6" stroke-width="4" stroke-linecap="round"/>
+          <line x1="58" y1="136" x2="58" y2="280" stroke="#0D9488" stroke-width="4" stroke-linecap="round"/>
+          <line x1="58" y1="292" x2="58" y2="332" stroke="#0F766E" stroke-width="4" stroke-linecap="round"/>
+          <text x="30" y="83" text-anchor="middle" font-size="14" fill="#78716C">新規</text>
+          <text x="30" y="213" text-anchor="middle" font-size="14" fill="#0D9488">深化</text>
+          <text x="30" y="317" text-anchor="middle" font-size="14" fill="#0F766E">購買</text>
+          <rect x="70" y="32" width="264" height="40" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="202" y="58" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">リールで見つけてもらう</text>
+          <polygon points="196,76 208,76 202,82" fill="#0F766E"/>
+          <rect x="70" y="84" width="264" height="40" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="202" y="110" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">プロフィールを見に来る</text>
+          <polygon points="196,128 208,128 202,134" fill="#0F766E"/>
+          <rect x="70" y="136" width="264" height="40" rx="10" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="202" y="162" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">ストーリーズを毎日見る</text>
+          <polygon points="196,180 208,180 202,186" fill="#0F766E"/>
+          <rect x="70" y="188" width="264" height="40" rx="10" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <text x="202" y="214" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">スタンプ・DMで反応する</text>
+          <polygon points="196,232 208,232 202,238" fill="#0F766E"/>
+          <rect x="70" y="240" width="264" height="40" rx="10" fill="#0D5C55"/>
+          <text x="202" y="266" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">信頼が生まれる</text>
+          <polygon points="196,284 208,284 202,290" fill="#0F766E"/>
+          <rect x="70" y="292" width="264" height="40" rx="10" fill="#134E4A"/>
+          <text x="202" y="318" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">商品を案内できる</text>
+          <text x="170" y="356" text-anchor="middle" font-size="14" fill="#57534E">抜けている段が、いまのボトルネックです。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図31</span><span>抜けている段が、いまの詰まりどころです。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">1週間の予定表（例）</h3>
+    <p class="rv"><strong>先に枠を決める</strong>のが目的です。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <div class="cal">
+          <div class="cal-day">
+            <div class="cal-h">月</div>
+            <span class="chip chip-reel"><b>リール</b>ノウハウ</span>
+            <span class="chip chip-st"><b>ST</b>朝の日常</span>
+            <span class="chip chip-st"><b>ST</b>やりとり</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">火</div>
+            <span class="chip chip-off"><b>リール</b>なし</span>
+            <span class="chip chip-st"><b>ST</b>価値観</span>
+            <span class="chip chip-st"><b>ST</b>日常</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">水</div>
+            <span class="chip chip-reel"><b>リール</b>ノウハウ</span>
+            <span class="chip chip-st"><b>ST</b>日常</span>
+            <span class="chip chip-st"><b>ST</b>告知</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">木</div>
+            <span class="chip chip-off"><b>リール</b>なし</span>
+            <span class="chip chip-st"><b>ST</b>質問箱</span>
+            <span class="chip chip-st"><b>ST</b>日常</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">金</div>
+            <span class="chip chip-reel"><b>リール</b>らしさ</span>
+            <span class="chip chip-st"><b>ST</b>日常</span>
+            <span class="chip chip-st"><b>ST</b>価値観</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">土</div>
+            <span class="chip chip-off"><b>リール</b>なし</span>
+            <span class="chip chip-st"><b>ST</b>休日の日常</span>
+            <span class="chip chip-st"><b>ST</b>アンケート</span>
+          </div>
+          <div class="cal-day">
+            <div class="cal-h">日</div>
+            <span class="chip chip-off"><b>リール</b>なし</span>
+            <span class="chip chip-st"><b>ST</b>週の振り返り</span>
+            <span class="chip chip-st"><b>ST</b>来週の宣言</span>
+          </div>
+        </div>
+        <p class="note" style="margin-top:16px">リールは週2〜3本、ストーリーズは毎日2〜5本。ST＝ストーリーズです。</p>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図32</span><span>空いた枠は無理に埋めず、続く形に削ります。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">やりとりは「参加を軽くする道具」</h3>
+    <p class="rv">アンケートも質問箱も、遊びではありません。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 274" role="img" aria-label="やりとりの仕掛けを参加ハードル順に並べた階段図">
+          <text x="170" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">参加のハードルが低い順に置く</text>
+          <text x="44" y="148" text-anchor="middle" font-size="14" fill="#78716C">ハードル低</text>
+          <path d="M40 152 L44 156 L48 152" fill="none" stroke="#78716C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="290" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">深い接点</text>
+          <path d="M286 74 L290 78 L294 74" fill="none" stroke="#0F766E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="6" y="160" width="76" height="50" rx="8" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <rect x="88" y="134" width="76" height="76" rx="8" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <rect x="170" y="108" width="76" height="102" rx="8" fill="#0D9488"/>
+          <rect x="252" y="82" width="76" height="128" rx="8" fill="#0F766E"/>
+          <text x="44" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">スタンプ</text>
+          <text x="126" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#134E4A">アンケート</text>
+          <text x="208" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">質問箱</text>
+          <text x="290" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">DM</text>
+          <line x1="6" y1="210" x2="328" y2="210" stroke="#78716C" stroke-width="1.5"/>
+          <text x="170" y="242" text-anchor="middle" font-size="14" fill="#57534E">反応してくれた人が、次のファン候補です。</text>
+          <text x="170" y="264" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">気づいたら、DMで一言お礼を送ります。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図33</span><span>いきなりDMを求めず、タップ1回から始めます。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">反応した人を、DMへつなぎます</h3>
+
+    <figure class="fig rv">
+      <div class="fig-body">
+        <svg class="dgm" viewBox="0 0 340 234" role="img" aria-label="反応した人をDMへつなぐ3ステップの図">
+          <text x="170" y="18" text-anchor="middle" font-size="15" font-weight="700" fill="#57534E">反応した人を、DMへつなぐ3歩</text>
+          <line x1="40" y1="48" x2="40" y2="196" stroke="#CCE8E6" stroke-width="3"/>
+          <rect x="72" y="34" width="262" height="52" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="40" cy="60" r="18" fill="#0F766E"/>
+          <text class="n" x="40" y="66" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">1</text>
+          <text x="88" y="58" font-size="15" font-weight="700" fill="#134E4A">反応した人を見る</text>
+          <text x="88" y="78" font-size="14" fill="#57534E">スタンプ・アンケートの一覧から</text>
+          <rect x="72" y="96" width="262" height="52" rx="10" fill="#E8F5F4" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="40" cy="122" r="18" fill="#0F766E"/>
+          <text class="n" x="40" y="128" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">2</text>
+          <text x="88" y="120" font-size="15" font-weight="700" fill="#134E4A">その日のうちにお礼</text>
+          <text x="88" y="140" font-size="14" fill="#57534E">DMでひと言だけ。十分です</text>
+          <rect x="72" y="158" width="262" height="52" rx="10" fill="#CCE8E6" stroke="#0F766E" stroke-width="1.5"/>
+          <circle cx="40" cy="184" r="18" fill="#134E4A"/>
+          <text class="n" x="40" y="190" text-anchor="middle" font-size="15" font-weight="800" fill="#FFFFFF">3</text>
+          <text x="88" y="182" font-size="15" font-weight="700" fill="#134E4A">会話が続けばファン候補</text>
+          <text x="88" y="202" font-size="14" fill="#57534E">名前を覚えて、また声をかける</text>
+          <text x="170" y="228" text-anchor="middle" font-size="14" font-weight="700" fill="#0F766E">ここが、いちばん近道の一歩です。</text>
+        </svg>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図34</span><span>反応してくれた人が、次のファン候補です。</span></figcaption>
+    </figure>
+
+    <h3 class="h3 rv">総まとめ — ファン化の設計図</h3>
+    <p class="rv">迷ったら、この1枚に戻ってきてください。</p>
+
+    <figure class="fig rv">
+      <div class="fig-body tinted">
+        <div class="map">
+          <div class="map-row">
+            <div class="map-side">土台<br>らしさ</div>
+            <div class="map-main">
+              <div class="map-items">
+                <div class="map-item"><span>CH.02</span>価値観（奥）</div>
+                <div class="map-item"><span>CH.02</span>ストーリー（まん中）</div>
+                <div class="map-item"><span>CH.02</span>好み・日常（外側）</div>
+              </div>
+            </div>
+          </div>
+          <div class="map-arrow" aria-hidden="true">
+            <svg viewBox="0 0 26 16"><path d="M13 15 L3 3 M13 15 L23 3" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="map-row">
+            <div class="map-side">見せ方<br>3つの軸</div>
+            <div class="map-main">
+              <div class="map-items">
+                <div class="map-item"><span>CH.03</span>好き・日常で共感</div>
+                <div class="map-item"><span>CH.04</span>マイナスで距離を縮める</div>
+                <div class="map-item"><span>CH.05</span>未来で憧れをつくる</div>
+              </div>
+            </div>
+          </div>
+          <div class="map-arrow" aria-hidden="true">
+            <svg viewBox="0 0 26 16"><path d="M13 15 L3 3 M13 15 L23 3" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="map-row">
+            <div class="map-side">エンジン<br>二刀流</div>
+            <div class="map-main">
+              <div class="map-items">
+                <div class="map-item"><span>CH.06</span>リール＝出会う</div>
+                <div class="map-item"><span>CH.06</span>ストーリーズ＝深める</div>
+              </div>
+            </div>
+          </div>
+          <div class="map-arrow" aria-hidden="true">
+            <svg viewBox="0 0 26 16"><path d="M13 15 L3 3 M13 15 L23 3" fill="none" stroke="#0F766E" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="map-row">
+            <div class="map-side">出口<br>ファン化</div>
+            <div class="map-main">
+              <div class="map-items">
+                <div class="map-item"><span>CH.01</span>共感の壁を越える</div>
+                <div class="map-item"><span>CH.01</span>信頼が積み上がる</div>
+                <div class="map-item"><span>CH.01</span>「あなただから買う」</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><span class="fig-no">図35</span><span>土台から順に積むのが、いちばんの近道です。</span></figcaption>
+    </figure>
+
+    <div class="action rv">
+      <div class="action-h">
+        <span class="action-tag">ACTION</span>
+        <span class="action-t">今日やること</span>
+      </div>
+      <ul class="todo">
+        <li>今週の曜日枠を決めて、メモに書き込みます。</li>
+        <li>今日のストーリーズに、アンケートを1つ入れます。</li>
+        <li>反応をくれた人に、DMでひと言お礼を送ります。</li>
+      </ul>
+      <p class="action-note">1つ選んで、今日のうちに終わらせます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 巻末 ================= -->
+<section class="outro">
+  <div class="wrap">
+    <p class="sec-label">Closing</p>
+    <h2>ノウハウ発信をやめる日は、<br>あなたが「選ばれる側」になる日です。</h2>
+    <p>才能の話は、ひとつもありませんでした。<br>ぜんぶ、順番と作り方の話です。</p>
+    <p>完璧な1本はいりません。<strong>まだ完璧じゃないあなた</strong>のほうが、愛されます。</p>
+    <div class="outro-box">
+      <div class="action-h">
+        <span class="action-tag">FIRST STEP</span>
+        <span class="action-t" style="color:#fff">まず今日、ストーリーズを1本</span>
+      </div>
+      <ul class="todo">
+        <li>ネタは日常ネタ7選から1つ。凝らなくて大丈夫です。</li>
+        <li>最後に「なぜそうしているか」をひと言添えます。</li>
+        <li>出したら今日は終わりでOK。明日また1本。</li>
+      </ul>
+      <span class="cta">今日の1本が、最初のファンをつくります</span>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    ファン化の設計図 — SNSコンサル講義資料<br>
+    ※ 本資料の内容は成果を保証するものではありません。実践の結果には個人差があります。
+  </div>
+</footer>
+
+<script>
+(function(){
+  var d = document, root = d.documentElement;
+  var pb = d.getElementById('progress');
+
+  function onScroll(){
+    if(!pb) return;
+    var h = d.body.scrollHeight - window.innerHeight;
+    var p = h > 0 ? (window.pageYOffset / h) * 100 : 0;
+    pb.style.width = Math.min(100, Math.max(0, p)) + '%';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  var els = [].slice.call(d.querySelectorAll('.rv'));
+  if(!els.length) return;
+  function showAll(){ for(var i=0;i<els.length;i++){ els[i].classList.add('in'); } }
+
+  // IntersectionObserver が使えない環境では初期非表示を一切作らない
+  if(!('IntersectionObserver' in window)){ return; }
+  root.classList.add('js-reveal');
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {rootMargin:'0px 0px -6% 0px', threshold:0.02});
+  els.forEach(function(el){ io.observe(el); });
+
+  // 保険1: スクロール時、画面に入った要素は必ず表示する（IOが止まっても不可視にならない）
+  var ticking = false;
+  function sweep(){
+    ticking = false;
+    var vh = window.innerHeight;
+    for(var i=0;i<els.length;i++){
+      var el = els[i];
+      if(el.classList.contains('in')) continue;
+      if(el.getBoundingClientRect().top < vh * 0.98){ el.classList.add('in'); }
+    }
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ ticking = true; requestAnimationFrame(sweep); }
+  }, {passive:true});
+
+  // 保険2: 起動直後にIOが1件も発火していなければ、全部表示に切り替える
+  setTimeout(function(){
+    var revealed = 0;
+    for(var i=0;i<els.length;i++){ if(els[i].classList.contains('in')) revealed++; }
+    if(revealed === 0){ showAll(); }
+  }, 1800);
+})();
+</script>
+</body>
+</html>
