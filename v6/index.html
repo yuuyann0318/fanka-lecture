@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インスタ集客の設計図</title>
+<script>document.documentElement.className='js';</script>
+<style>
+:root{
+  --ink:#1F2126; --ink-2:#5B5F69; --ink-3:#6E7380;
+  --line:#E6E2EA; --line-2:#F1EDF4; --paper:#F4F1F6; --stage:#FFFFFF;
+  --mag:#C13584; --mag-deep:#A11F6B; --mag-wash:#FCEEF4; --pink:#E1306C;
+  --pur:#833AB4; --pur-deep:#6B2A96; --pur-wash:#F3ECFA;
+  --grad:linear-gradient(90deg,#833AB4 0%,#C13584 55%,#E1306C 100%);
+  --grad-deep:linear-gradient(100deg,#6B2A96 0%,#A11F6B 100%);
+  --sans:"Hiragino Sans","ヒラギノ角ゴシック","Hiragino Kaku Gothic ProN","Yu Gothic Medium","YuGothic","Meiryo",system-ui,sans-serif;
+  --s:1;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;background:var(--paper);}
+body{
+  font-family:var(--sans); letter-spacing:.02em; word-break:keep-all; overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  font-feature-settings:"palt" 1; color:var(--ink);
+}
+svg text{font-family:var(--sans);font-feature-settings:"palt" 1;}
+h1,h2,h3,h4,p,ul,ol,figure,table{margin:0;padding:0;}
+ul,ol{list-style:none;}
+
+/* ===== ステージ（1280×720固定＋scale縮小） ===== */
+.paper{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--paper);}
+.stage-wrap{position:relative;width:1280px;height:720px;transform:scale(var(--s));transform-origin:center center;box-shadow:0 26px 70px rgba(31,33,38,.16),0 2px 8px rgba(31,33,38,.08);flex:none;border-radius:2px;}
+.stage{position:relative;width:1280px;height:720px;background:var(--stage);overflow:hidden;}
+.slide{position:absolute;inset:0;width:1280px;height:720px;padding:52px 80px;display:none;flex-direction:column;background:var(--stage);}
+.slide.tint{background:linear-gradient(180deg,#FFFFFF 0%,var(--mag-wash) 100%);}
+.slide.tint-p{background:linear-gradient(180deg,#FFFFFF 0%,var(--pur-wash) 100%);}
+.slide.active{display:flex;animation:fadeIn .16s ease-out;}
+.slide.center{align-items:center;justify-content:center;text-align:center;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.slide.active{animation:none;}}
+
+.head-block{flex:0 0 auto;}
+.body-block{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;min-height:0;padding:14px 0;}
+.foot-block{flex:0 0 auto;margin-top:22px;}
+
+/* 本文ブロックを余らせない（下部の死に余白の解消）: 器を本文領域まで伸ばし、中身は縦センター。
+   伸ばしすぎて器の内側が空かないよう .cap / .cap-s で上限を置く */
+.fill{flex:1 1 auto;min-height:0;}
+.fill.cap{max-height:380px;}
+.fill.cap-s{max-height:300px;}
+.figbox.fill,.stack.fill,.chk.fill{display:flex;flex-direction:column;justify-content:center;}
+.vs.fill > .vs-col,.cards.fill > .card,.three.fill > .three-c,.flow.fill > .bx{justify-content:center;}
+.map.fill{display:flex;flex-direction:column;justify-content:center;}
+
+/* ===== 共通パーツ ===== */
+.lbl{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:600;letter-spacing:.22em;color:var(--ink-2);margin:0 0 18px;}
+.lbl i{width:28px;height:2px;background:var(--mag);display:inline-block;flex:none;border-radius:2px;}
+.slide.center .lbl{justify-content:center;}
+
+.pill{display:inline-flex;align-items:center;gap:9px;padding:9px 20px;border-radius:999px;background:var(--mag-wash);color:var(--mag-deep);font-size:15px;font-weight:700;letter-spacing:.06em;border:1px solid #F2D6E4;}
+.pill.g{background:var(--grad-deep);color:#fff;border:none;}
+.pill.p{background:var(--pur-wash);color:var(--pur-deep);border-color:#E4D8F2;}
+
+.big{font-size:62px;font-weight:700;line-height:1.36;color:var(--ink);letter-spacing:.01em;}
+.big.sm{font-size:50px;}
+.big .k{color:var(--mag-deep);}
+.big .u{background:linear-gradient(transparent 68%,#F7C9DF 68%);}
+.head{font-size:36px;font-weight:700;line-height:1.35;color:var(--ink);}
+.head .k{color:var(--mag-deep);}
+.sub{font-size:19px;font-weight:400;line-height:1.7;color:var(--ink-2);}
+.note{font-size:15px;line-height:1.7;color:var(--ink-2);}
+.note .k{color:var(--mag-deep);font-weight:700;}
+.hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;}
+.nw{white-space:nowrap;}
+/* 章インジケータ: 見出しが1行でも2行でも全スライドで同じ位置（右80px・上113.6px）に置く */
+.hidx{position:absolute;right:80px;top:113.6px;font-size:13px;font-weight:700;letter-spacing:.18em;color:var(--ink-2);padding-bottom:6px;white-space:nowrap;}
+
+.page-num{position:absolute;right:26px;bottom:18px;font-size:14px;color:var(--ink-2);z-index:6;letter-spacing:.06em;}
+.progress{position:absolute;top:0;left:0;height:3px;background:var(--grad);z-index:7;width:0;}
+
+/* ナビ（操作UI） */
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.86);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:8;padding:0;}
+.nav:hover{background:var(--mag-wash);border-color:#EFC6DC;}
+.nav.prev{left:14px;} .nav.next{right:14px;}
+.nav svg{width:16px;height:16px;}
+.idx-btn{position:absolute;left:24px;bottom:14px;z-index:8;font-family:var(--sans);font-size:13px;color:var(--ink-2);background:rgba(255,255,255,.86);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;}
+.idx-btn:hover{background:var(--mag-wash);}
+.idx-wrap{position:absolute;inset:0;background:#FFFFFF;z-index:20;display:none;padding:40px 54px;overflow:auto;}
+.idx-wrap.open{display:block;}
+.idx-h{font-size:22px;font-weight:700;margin-bottom:18px;color:var(--ink);}
+.idx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 20px;}
+.idx-grid button{display:flex;gap:10px;align-items:baseline;text-align:left;font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--ink);background:none;border:none;border-bottom:1px solid var(--line-2);padding:7px 4px;cursor:pointer;width:100%;}
+.idx-grid button:hover{background:var(--mag-wash);}
+.idx-grid b{color:var(--mag-deep);font-size:12px;min-width:22px;}
+
+/* カード */
+.cards{display:grid;gap:18px;}
+.c3{grid-template-columns:repeat(3,1fr);}
+.c4{grid-template-columns:repeat(4,1fr);gap:14px;}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:26px 22px 24px;display:flex;flex-direction:column;gap:9px;position:relative;}
+.c4 .card{padding:26px 18px 24px;}
+.c4 .card p{font-size:16px;line-height:1.66;letter-spacing:0;}
+.card .cn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:26px;border-radius:7px;background:var(--mag-wash);color:var(--mag-deep);font-size:14px;font-weight:700;letter-spacing:.04em;}
+.card h4{font-size:23px;font-weight:700;line-height:1.35;color:var(--ink);}
+.card p{font-size:16.5px;line-height:1.7;color:var(--ink-2);}
+.card .badge{align-self:flex-start;display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--pur-deep);background:var(--pur-wash);border-radius:5px;padding:4px 10px;}
+.card.on{border-color:var(--mag);background:var(--mag-wash);}
+.card.on .cn{background:var(--mag);color:#fff;}
+.tick{position:absolute;right:18px;top:18px;opacity:.5;}
+
+/* 2カラム対比 */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.vs-col{border-radius:14px;padding:30px 32px;border:1.5px solid var(--line);}
+.vs-col .vh{font-size:21px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.vs-col li{font-size:17.5px;line-height:1.55;padding:13px 0 13px 26px;position:relative;color:var(--ink-2);}
+.vs-col li::before{content:"";position:absolute;left:2px;top:21px;width:8px;height:8px;border-radius:2px;background:#C9C4D1;}
+.vs-col.a{background:#FAFAFB;}
+.vs-col.b{background:var(--mag-wash);border-color:#F0CFE1;}
+.vs-col.b .vh{color:var(--mag-deep);}
+.vs-col.b li{color:var(--ink);}
+.vs-col.b li::before{background:var(--mag);}
+
+/* 引用（4枚すべて同一の器: 幅900px・白地・左に紫の帯） */
+.quote{position:relative;width:900px;background:#FFFFFF;border:1.5px solid #E4D8F2;border-left:6px solid var(--pur);border-radius:14px;padding:38px 46px 32px;text-align:left;}
+.quote .mk{font-size:62px;line-height:.8;color:var(--pur);opacity:.35;font-weight:700;}
+.quote p.q{font-size:34px;font-weight:700;line-height:1.62;color:var(--ink);margin-top:10px;min-height:110px;}
+.quote p.src{font-size:14px;line-height:1.7;color:var(--ink-2);margin-top:18px;}
+
+/* 吹き出し（チャット参加） */
+.bubble{background:var(--mag-wash);border:1.5px solid #F0CFE1;border-radius:14px;padding:18px 24px;display:flex;flex-direction:column;gap:6px;}
+.bubble .bl{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--mag-deep);letter-spacing:.08em;}
+.bubble .bq{font-size:21px;font-weight:700;color:var(--ink);line-height:1.5;}
+
+/* 地図 */
+.map{width:100%;}
+.map-flow{display:grid;grid-template-columns:1fr 38px 1fr 38px 1fr 38px 1fr;align-items:stretch;}
+.ms{border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:24px 18px 22px;display:flex;flex-direction:column;gap:7px;align-items:center;text-align:center;}
+.ms .msn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--pur-wash);color:var(--pur-deep);font-size:15px;font-weight:700;}
+.ms .mst{font-size:27px;font-weight:700;line-height:1.3;}
+.ms .msd{font-size:14.5px;line-height:1.6;color:var(--ink-2);}
+.ms.goal{background:var(--mag-wash);border-color:#F0CFE1;}
+.ms.goal .msn{background:var(--mag);color:#fff;}
+.ms.goal .mst{color:var(--mag-deep);}
+.mar{display:flex;align-items:center;justify-content:center;}
+/* 部の帯 = ステップ4列とは別の軸。全幅1本の独立帯（3等分）にして、列との対応を作らない */
+.parts-band{margin-top:20px;padding-top:16px;border-top:1.5px dashed #D9D3E2;display:flex;align-items:stretch;gap:18px;}
+.pb-lbl{flex:none;align-self:center;font-size:12.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-2);white-space:nowrap;}
+.map-parts{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.mp{border-radius:12px;border:1.5px dashed #D9D3E2;padding:16px 18px;display:flex;flex-direction:column;gap:4px;background:#FCFBFD;}
+.mp .mpn{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--ink-2);}
+.mp .mpt{font-size:21px;font-weight:700;color:var(--ink);}
+.mp .mpd{font-size:14px;line-height:1.55;color:var(--ink-2);}
+.mp.on{background:var(--mag-wash);border:2px solid var(--mag);}
+.mp.on .mpn{color:var(--mag-deep);} .mp.on .mpt{color:var(--mag-deep);}
+.loop{margin-top:16px;display:flex;align-items:center;gap:10px;justify-content:center;background:var(--pur-wash);border:1.5px solid #E4D8F2;border-radius:999px;padding:9px 22px;font-size:15px;font-weight:600;color:var(--pur-deep);}
+
+/* 地図ミニ（部扉） */
+.map.mini .ms{padding:17px 12px 16px;gap:6px;border-radius:12px;}
+.map.mini .ms .msn{width:27px;height:27px;font-size:13px;}
+.map.mini .ms .mst{font-size:20px;}
+.map.mini .ms .msd{font-size:13.5px;line-height:1.55;}
+.map.mini .parts-band{margin-top:16px;padding-top:14px;}
+.map.mini .mp{padding:13px 16px;}
+.map.mini .mp .mpd{display:none;}
+.map.mini .mp .mpt{font-size:19px;}
+
+/* チップ */
+.chips{display:flex;flex-wrap:wrap;gap:14px;}
+.chip{display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:999px;padding:17px 32px;font-size:21px;font-weight:700;background:#fff;}
+.chip .cnum{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--mag-wash);color:var(--mag-deep);font-size:13px;font-weight:700;}
+.chip.w{font-size:17px;padding:11px 18px;}
+.chip.g{background:var(--pur-wash);border-color:#E4D8F2;color:var(--pur-deep);}
+
+/* 表 */
+.tbl{width:100%;border-collapse:collapse;background:#fff;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;}
+.tbl th,.tbl td{border-bottom:1px solid var(--line-2);padding:16px 18px;text-align:left;font-size:16px;line-height:1.55;vertical-align:middle;}
+.tbl thead th{background:var(--pur-wash);color:var(--pur-deep);font-size:15px;font-weight:700;letter-spacing:.04em;}
+.tbl tbody th{width:118px;font-weight:700;color:var(--ink);background:#FBFAFC;}
+.tbl td{color:var(--ink-2);}
+.tbl tr:last-child th,.tbl tr:last-child td{border-bottom:none;}
+.tbl td.on{background:var(--mag-wash);color:var(--ink);font-weight:600;}
+.tbl:not(.week) th,.tbl:not(.week) td{padding:23px 20px;font-size:17px;}
+/* 週の枠（26枚目）: セルの中身をタグにして、行の幅をいっぱいまで使う */
+.tbl.week tbody th{width:80px;text-align:center;font-size:17px;}
+.tbl.week th,.tbl.week td{padding:5px 12px;}
+.tbl.week thead th{padding:11px 16px;}
+.cellrow{display:flex;gap:10px;}
+.tg{flex:1;text-align:center;border-radius:9px;padding:8px 6px;font-size:15.5px;font-weight:600;background:#F6F4F8;color:var(--ink-2);}
+.tg.r{background:var(--pur-wash);color:var(--pur-deep);}
+.tg.s{background:var(--mag-wash);color:var(--mag-deep);}
+.tg.off{background:#FAFAFB;color:var(--ink-3);font-weight:400;}
+
+/* フロー */
+.flow{display:flex;align-items:stretch;gap:12px;}
+.flow .bx{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:30px 26px;display:flex;flex-direction:column;gap:12px;background:#fff;}
+.flow .bx .bn{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--pur-deep);background:var(--pur-wash);border-radius:6px;padding:4px 9px;align-self:flex-start;}
+.flow .bx b{font-size:24px;line-height:1.35;}
+.flow .bx p{font-size:16.5px;line-height:1.6;color:var(--ink-2);}
+.flow .bx.on{background:var(--mag-wash);border-color:#F0CFE1;}
+.flow .bx.on .bn{background:var(--mag);color:#fff;}
+.flow .ar{display:flex;align-items:center;}
+.flow-out{margin-top:16px;text-align:center;font-size:20px;font-weight:700;color:var(--mag-deep);background:var(--mag-wash);border-radius:12px;padding:13px 20px;}
+
+/* 縦スタック */
+.stack{display:flex;flex-direction:column;gap:8px;}
+.stack-i{display:flex;align-items:center;gap:16px;border:1.5px solid var(--line);border-radius:12px;padding:16px 22px;background:#fff;}
+.stack-i .sn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--pur-wash);color:var(--pur-deep);font-size:15px;font-weight:700;flex:none;}
+.stack-i b{font-size:20px;line-height:1.35;flex:none;}
+.stack-i span.sd{font-size:15.5px;line-height:1.5;color:var(--ink-2);}
+.stack-i.on{background:var(--mag-wash);border-color:#F0CFE1;}
+.stack-i.on .sn{background:var(--mag);color:#fff;}
+.down{display:flex;justify-content:center;}
+
+/* チェック */
+.chk{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk li{display:flex;align-items:center;gap:16px;border:1.5px solid var(--line);border-radius:12px;padding:22px 26px;background:#fff;font-size:21px;line-height:1.45;}
+.chk li .cb{width:24px;height:24px;border-radius:6px;border:2px solid var(--mag);flex:none;display:inline-flex;align-items:center;justify-content:center;}
+
+/* バー */
+.bars{display:flex;flex-direction:column;gap:22px;}
+.bar-row{display:flex;align-items:center;gap:18px;}
+.bar-row .bl{width:176px;font-size:17px;font-weight:700;flex:none;text-align:right;}
+.bar-track{flex:1;height:58px;border-radius:9px;overflow:hidden;display:flex;background:var(--line-2);}
+.bar-track i{display:block;height:100%;}
+.rowlab{display:flex;gap:26px;justify-content:center;margin-top:16px;font-size:14px;color:var(--ink-2);}
+.rowlab span{display:inline-flex;align-items:center;gap:7px;}
+.rowlab i{width:13px;height:13px;border-radius:3px;display:inline-block;}
+.i-pur{background:var(--pur);} .i-mag{background:var(--pink);}
+
+/* 図の器 */
+.figbox{background:#FCFBFD;border:1.5px solid var(--line);border-radius:16px;padding:24px 26px;}
+.figbox.plain{background:none;border:none;padding:0;}
+.figcap{font-size:13.5px;color:var(--ink-2);margin-top:10px;text-align:center;}
+
+/* 表紙 */
+.cover{justify-content:center;align-items:flex-start;}
+.cover h1{font-size:74px;font-weight:700;line-height:1.26;letter-spacing:.01em;margin:22px 0 0;}
+.cover h1 .k{color:var(--mag-deep);}
+.cover .csub{font-size:21px;color:var(--ink-2);margin-top:18px;line-height:1.65;}
+.cover .cbar{margin-top:34px;display:flex;align-items:center;gap:16px;background:var(--grad-deep);border-radius:14px;padding:18px 28px;color:#fff;}
+.cover .cbar .cbl{font-size:13px;font-weight:700;letter-spacing:.16em;background:rgba(0,0,0,.20);border-radius:6px;padding:5px 11px;white-space:nowrap;}
+.cover .cbar .cbt{font-size:20px;font-weight:700;line-height:1.5;}
+.cover .cmeta{margin-top:22px;font-size:14px;color:var(--ink-2);letter-spacing:.08em;}
+.cover .pill,.cover h1,.cover .csub,.cover .cbar,.cover .cmeta{position:relative;z-index:1;max-width:880px;}
+.deco{position:absolute;border-radius:50%;z-index:0;pointer-events:none;}
+
+/* 部扉 */
+.door .dnum{font-size:14px;font-weight:700;letter-spacing:.2em;color:var(--mag-deep);}
+.door h2{font-size:64px;font-weight:700;line-height:1.2;margin-top:6px;}
+.door .dsub{font-size:20px;color:var(--ink-2);line-height:1.7;margin-top:14px;}
+.door .dband{height:6px;border-radius:6px;background:var(--grad);width:130px;margin-top:20px;}
+
+/* まとめ3つ */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.three-c{border:1.5px solid var(--line);border-radius:16px;padding:38px 30px;background:#fff;display:flex;flex-direction:column;gap:15px;}
+.three-c .tn{width:52px;height:52px;border-radius:50%;background:var(--grad);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+.three-c h4{font-size:27px;font-weight:700;line-height:1.35;}
+.three-c p{font-size:17px;line-height:1.75;color:var(--ink-2);}
+
+/* 最後の一手（左=宣言 / 右=今日の手順3つ。右半分を空けない） */
+.first{background:var(--grad-deep);border-radius:18px;padding:36px 42px;color:#fff;display:flex;align-items:center;gap:34px;}
+.first .ftxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:13px;}
+.first .fl{align-self:flex-start;font-size:13px;font-weight:700;letter-spacing:.16em;background:rgba(0,0,0,.22);border-radius:7px;padding:6px 13px;}
+.first p.ft{font-size:38px;font-weight:700;line-height:1.46;}
+.first p.fn{font-size:16px;line-height:1.7;color:#FCE7F1;}
+.first .ffig{flex:none;width:356px;display:flex;flex-direction:column;gap:11px;}
+.first .fsl{font-size:12.5px;font-weight:700;letter-spacing:.16em;color:#FCE7F1;}
+.first .fstep{display:flex;align-items:center;gap:13px;font-size:16.5px;font-weight:600;background:rgba(0,0,0,.20);border-radius:12px;padding:14px 16px;}
+.first .fstep i{width:27px;height:27px;border-radius:50%;background:#fff;color:var(--mag-deep);font-size:14px;font-weight:700;font-style:normal;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.disc{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:16px;}
+
+.qbar{display:flex;align-items:center;gap:16px;background:var(--pur-wash);border:1.5px solid #E4D8F2;border-radius:12px;padding:14px 20px;}
+.qbar .qm{font-size:30px;line-height:.9;color:var(--pur);opacity:.45;font-weight:700;flex:none;}
+.qbar .qt{font-size:19px;font-weight:700;line-height:1.5;}
+.qbar .qs{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-left:auto;text-align:right;flex:none;}
+
+.callout{display:flex;align-items:flex-start;gap:14px;border:1.5px solid var(--line);border-radius:14px;padding:18px 22px;background:#FCFBFD;}
+.callout .ct{font-size:17px;line-height:1.7;color:var(--ink-2);}
+.callout .ct b{color:var(--ink);}
+
+/* ===== スマホ縦向きの案内（装飾ではなく操作ヒント） ===== */
+@media (max-width:640px) and (orientation:portrait){
+  .paper::after{
+    content:"横向きにすると、大きく表示されます。";
+    position:absolute;left:0;right:0;bottom:26px;text-align:center;
+    font-size:12px;color:var(--ink-2);letter-spacing:.04em;
+  }
+}
+
+/* ===== JS無効時のフォールバック（全文縦並び） ===== */
+html:not(.js) .paper{position:static;display:block;overflow:visible;padding:24px 0;}
+html:not(.js) .stage-wrap{transform:none;width:1280px;height:auto;margin:0 auto;box-shadow:none;}
+html:not(.js) .stage{height:auto;overflow:visible;}
+html:not(.js) .slide{position:relative;inset:auto;display:flex;margin:0 auto 22px;border:1px solid var(--line);overflow:hidden;}
+html:not(.js) .nav,html:not(.js) .idx-btn,html:not(.js) .idx-wrap,html:not(.js) .progress{display:none;}
+.nojs-note{display:none;}
+html:not(.js) .nojs-note{display:block;width:1280px;margin:0 auto 18px;font-size:14px;color:var(--ink-2);padding:14px 18px;background:#fff;border:1px solid var(--line);border-radius:10px;}
+/* JS無効時は 1280px の版面をビューポート幅に合わせて縮小し、横スクロールを出さない。
+   各帯の倍率 --nz は「帯の下限幅 ÷ 1280」以下（安全余白4px）。20px刻みで切ってあるため
+   どの幅でも 1280×--nz ≦ ビューポート幅 が成立する（320〜1480pxを10px刻みで実測）。 */
+html:not(.js) body{zoom:var(--nz,1);}
+@media (max-width:1300px){html:not(.js) body{--nz:.997}}
+@media (max-width:1280px){html:not(.js) body{--nz:.982}}
+@media (max-width:1260px){html:not(.js) body{--nz:.966}}
+@media (max-width:1240px){html:not(.js) body{--nz:.950}}
+@media (max-width:1220px){html:not(.js) body{--nz:.935}}
+@media (max-width:1200px){html:not(.js) body{--nz:.919}}
+@media (max-width:1180px){html:not(.js) body{--nz:.903}}
+@media (max-width:1160px){html:not(.js) body{--nz:.888}}
+@media (max-width:1140px){html:not(.js) body{--nz:.872}}
+@media (max-width:1120px){html:not(.js) body{--nz:.857}}
+@media (max-width:1100px){html:not(.js) body{--nz:.841}}
+@media (max-width:1080px){html:not(.js) body{--nz:.825}}
+@media (max-width:1060px){html:not(.js) body{--nz:.810}}
+@media (max-width:1040px){html:not(.js) body{--nz:.794}}
+@media (max-width:1020px){html:not(.js) body{--nz:.778}}
+@media (max-width:1000px){html:not(.js) body{--nz:.763}}
+@media (max-width:980px){html:not(.js) body{--nz:.747}}
+@media (max-width:960px){html:not(.js) body{--nz:.732}}
+@media (max-width:940px){html:not(.js) body{--nz:.716}}
+@media (max-width:920px){html:not(.js) body{--nz:.700}}
+@media (max-width:900px){html:not(.js) body{--nz:.685}}
+@media (max-width:880px){html:not(.js) body{--nz:.669}}
+@media (max-width:860px){html:not(.js) body{--nz:.653}}
+@media (max-width:840px){html:not(.js) body{--nz:.638}}
+@media (max-width:820px){html:not(.js) body{--nz:.622}}
+@media (max-width:800px){html:not(.js) body{--nz:.607}}
+@media (max-width:780px){html:not(.js) body{--nz:.591}}
+@media (max-width:760px){html:not(.js) body{--nz:.575}}
+@media (max-width:740px){html:not(.js) body{--nz:.560}}
+@media (max-width:720px){html:not(.js) body{--nz:.544}}
+@media (max-width:700px){html:not(.js) body{--nz:.528}}
+@media (max-width:680px){html:not(.js) body{--nz:.513}}
+@media (max-width:660px){html:not(.js) body{--nz:.497}}
+@media (max-width:640px){html:not(.js) body{--nz:.482}}
+@media (max-width:620px){html:not(.js) body{--nz:.466}}
+@media (max-width:600px){html:not(.js) body{--nz:.450}}
+@media (max-width:580px){html:not(.js) body{--nz:.435}}
+@media (max-width:560px){html:not(.js) body{--nz:.419}}
+@media (max-width:540px){html:not(.js) body{--nz:.403}}
+@media (max-width:520px){html:not(.js) body{--nz:.388}}
+@media (max-width:500px){html:not(.js) body{--nz:.372}}
+@media (max-width:480px){html:not(.js) body{--nz:.357}}
+@media (max-width:460px){html:not(.js) body{--nz:.341}}
+@media (max-width:440px){html:not(.js) body{--nz:.325}}
+@media (max-width:420px){html:not(.js) body{--nz:.310}}
+@media (max-width:400px){html:not(.js) body{--nz:.294}}
+@media (max-width:380px){html:not(.js) body{--nz:.278}}
+@media (max-width:360px){html:not(.js) body{--nz:.263}}
+@media (max-width:340px){html:not(.js) body{--nz:.247}}
+@media (max-width:320px){html:not(.js) body{--nz:.232}}
+@media (max-width:300px){html:not(.js) body{--nz:.216}}
+@media (max-width:280px){html:not(.js) body{--nz:.200}}
+@media (max-width:260px){html:not(.js) body{--nz:.185}}
+@media (max-width:240px){html:not(.js) body{--nz:.169}}
+@media (max-width:220px){html:not(.js) body{--nz:.153}}
+/* zoom 非対応環境（Firefox 126未満など）向けのフォールバック。
+   同じ --nz を transform:scale に使い、縮んだぶんの高さを負マージンで戻す
+   （版面 .stage-wrap = 32枚×720px + 31×22px = 23722px 固定／.nojs-note = 51px）。
+   レイアウト幅は 1280px のまま残るため、ページの横スクロールは overflow-x で止める。 */
+@supports not (zoom:1){
+  html:not(.js) body{overflow-x:hidden;}
+  html:not(.js) .nojs-note{transform:scale(var(--nz,1));transform-origin:top left;margin:0 0 calc(18px + (var(--nz,1) - 1) * 51px);}
+  html:not(.js) .stage-wrap{transform:scale(var(--nz,1));transform-origin:top left;margin:0 0 calc((var(--nz,1) - 1) * 23722px);}
+}
+
+/* ===== 印刷（1枚1ページ） ===== */
+@media print{
+  html,body{height:auto;background:#fff;zoom:1;}
+  .paper{position:static;display:block;overflow:visible;padding:0;}
+  .stage-wrap{transform:none;width:1280px;height:auto;box-shadow:none;}
+  .stage{height:auto;overflow:visible;}
+  .slide{display:flex!important;position:relative;inset:auto;animation:none;page-break-after:always;break-after:page;margin:0;overflow:hidden;}
+  .slide:last-of-type{page-break-after:auto;break-after:auto;}
+  .nav,.idx-btn,.idx-wrap,.progress,.nojs-note{display:none!important;}
+  @page{size:1280px 720px;margin:0;}
+}
+
+/* ===== 引用ブロック（拡張） ===== */
+.quote.multi p.q{min-height:0;}
+.quote p.q2{font-size:25px;font-weight:700;line-height:1.62;color:var(--ink);margin-top:16px;}
+.quote p.q.sm{font-size:28px;}
+.quote.wide{width:1020px;}
+
+.qstack{display:flex;flex-direction:column;gap:12px;}
+.qs-i{display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid #E4D8F2;border-left:6px solid var(--pur);border-radius:12px;padding:18px 24px;}
+.qs-i .qn{width:34px;height:34px;border-radius:50%;background:var(--pur-wash);color:var(--pur-deep);font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.qs-i p{font-size:21px;font-weight:700;line-height:1.55;color:var(--ink);}
+.qs-i.lg p{font-size:26px;}
+.qs-i.sm p{font-size:18px;font-weight:600;line-height:1.62;}
+.qs-i.on{background:var(--mag-wash);border-color:#F0CFE1;border-left-color:var(--mag);}
+.qs-i.on .qn{background:var(--mag);color:#fff;}
+.qs-i.ng{border-left-color:#C9C4D1;background:#FAFAFB;}
+.qs-i.ng .qn{background:#EFEDF2;color:var(--ink-2);}
+
+/* 見出しが長い引用でも右上の章インジケータに重ねない */
+.hrow>div{min-width:0;max-width:960px;}
+.head.q{font-size:33px;line-height:1.42;}
+.head.q.sm{font-size:29px;line-height:1.5;}
+
+/* ○×のしるし */
+.mark{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:17px;font-weight:700;flex:none;}
+.mark.x{background:#EFEDF2;color:var(--ink-2);}
+.mark.o{background:var(--mag);color:#fff;}
+.mark.sm{width:24px;height:24px;font-size:14px;}
+
+/* ===== 7つのノウハウの全体地図 ===== */
+.nmap{display:flex;flex-direction:column;}
+.nband{border-radius:14px;padding:15px 24px;display:flex;align-items:center;gap:16px;}
+.nband .nbl{font-size:12.5px;font-weight:700;letter-spacing:.14em;flex:none;border-radius:6px;padding:5px 12px;white-space:nowrap;}
+.nband .nbt{font-size:25px;font-weight:700;line-height:1.3;}
+.nband.base{background:var(--pur-wash);border:1.5px solid #E4D8F2;}
+.nband.base .nbl{background:var(--pur);color:#fff;}
+.nband.base .nbt{color:var(--pur-deep);}
+.nband.goal{background:var(--mag-wash);border:1.5px solid #F0CFE1;}
+.nband.goal .nbl{background:var(--mag);color:#fff;}
+.nband.goal .nbt{color:var(--mag-deep);}
+.nband.on{border-width:2px;border-color:var(--mag);background:var(--mag-wash);}
+.nband.on .nbl{background:var(--mag);color:#fff;}
+.nband.on .nbt{color:var(--mag-deep);}
+.ndown{display:flex;justify-content:center;padding:7px 0;}
+.n7{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+.n7i{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:16px 8px 15px;display:flex;align-items:center;justify-content:center;text-align:center;}
+.n7i .nt{font-size:15.5px;font-weight:700;line-height:1.4;color:var(--ink);}
+.n7i .nnum{font-style:normal;color:var(--pur-deep);margin-right:1px;}
+.n7.on .n7i{background:var(--mag-wash);border-color:#F0CFE1;}
+.n7.on .n7i .nt{color:var(--mag-deep);}
+.n7.on .n7i .nnum{color:var(--mag-deep);}
+.nmap.mini .nband{padding:12px 20px;}
+.nmap.mini .nband .nbt{font-size:21px;}
+.nmap.mini .n7i{padding:12px 6px 11px;}
+.nmap.mini .n7i .nt{font-size:14px;}
+.nmap.mini .ndown{padding:5px 0;}
+
+/* ===== 帯グラフ（割合） ===== */
+.bar-track i.seg{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:15.5px;font-weight:700;color:#fff;letter-spacing:.02em;white-space:nowrap;overflow:hidden;}
+.bar-track.tall{height:66px;}
+.tenbar{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;}
+.tenbar i{display:block;height:58px;border-radius:6px;}
+.tenlab{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:11px;}
+.tenlab span{font-size:14px;font-weight:700;line-height:1.4;text-align:center;color:var(--ink-2);}
+.tenlab span.k{color:var(--mag-deep);}
+.axis{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.axis .axl{font-size:13.5px;color:var(--ink-2);white-space:nowrap;}
+.axis .axline{flex:1;height:2px;background:var(--line);border-radius:2px;}
+
+/* リール3本（3本に1本） */
+.reels{display:flex;gap:14px;align-items:flex-end;justify-content:center;}
+.reel{width:62px;height:104px;border-radius:10px;border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;}
+.reel i{display:block;width:20px;height:20px;border-radius:5px;background:#D8D3DF;}
+.reel.on{background:var(--mag-wash);border-color:var(--mag);}
+.reel.on i{background:var(--mag);}
+
+/* 語りの実例パネル */
+.panel{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:28px 34px;display:flex;flex-direction:column;gap:16px;}
+.panel p.pt{font-size:19.5px;line-height:1.85;color:var(--ink);}
+.panel .pend{display:flex;align-items:center;gap:14px;background:var(--mag-wash);border:1.5px solid #F0CFE1;border-radius:12px;padding:15px 20px;}
+.panel .pend p{font-size:20px;font-weight:700;line-height:1.5;color:var(--mag-deep);}
+
+/* 小さな2枠図 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.duo .duo-c{border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:22px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;}
+.duo .duo-c b{font-size:22px;}
+.duo .duo-c span{font-size:16px;color:var(--ink-2);line-height:1.6;}
+.duo .duo-c.b{background:var(--mag-wash);border-color:#F0CFE1;}
+.duo .duo-c.b b{color:var(--mag-deep);}
+.duo .duo-c.b span{color:var(--ink);}
+.nmap.lg .nband{padding:22px 26px;}
+.nmap.lg .nband .nbt{font-size:28px;}
+.nmap.lg .n7i{padding:24px 8px;}
+.nmap.lg .n7i .nt{font-size:16.5px;}
+.nmap.lg .ndown{padding:12px 0;}
+</style>
+</head>
+<body>
+<p class="nojs-note">この資料はスライド形式です。JavaScript が無効なため、全32枚を上から順に表示しています。</p>
+<div class="paper">
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <div class="progress" id="progressBar"></div>
+
+<!-- ============ 01 表紙 ============ -->
+<section class="slide cover" data-idx="1" data-title="表紙">
+  <div class="deco" style="width:420px;height:420px;right:-120px;top:-120px;background:radial-gradient(circle at 30% 30%,#FCEEF4,#F3ECFA);opacity:.85;"></div>
+  <div style="position:relative;z-index:1;display:flex;align-items:center;gap:12px;">
+    <span class="pill g">ONEを集客するあなたへ</span>
+    <span class="pill p">ファン化ノウハウ7選</span>
+  </div>
+  <h1>インスタ集客の<br><span class="k">設計図</span></h1>
+  <p class="csub">ノウハウを出すだけで終わらせず、ファンになってもらって、公式LINEへつなげます。</p>
+  <div class="cbar">
+    <span class="cbl">今日のゴール</span>
+    <span class="cbt">ストーリーズを1本出して、ONEの公式LINEの添削に送るところまで。</span>
+  </div>
+  <p class="cmeta">SNS合宿 講義資料</p>
+  <div class="page-num">01 / 32</div>
+</section>
+
+<!-- ============ 02 悩みの代弁 ============ -->
+<section class="slide" data-idx="2" data-title="止まっていませんか">
+  <div class="head-block">
+    <div class="lbl"><i></i>いまの発信</div>
+    <h2 class="head">ここで、止まっていませんか。</h2>
+  </div>
+  <div class="body-block">
+    <div class="qstack fill cap">
+      <div class="qs-i lg"><span class="qn">1</span><p>「やっぱ再生数が伸びるだけじゃダメなんでね」</p></div>
+      <div class="qs-i lg"><span class="qn">2</span><p>「画像投稿だとやっぱファン化はしないんで」</p></div>
+      <div class="qs-i lg on"><span class="qn">3</span><p>「情報系の動画が多すぎて属人性出せてない」</p></div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="bubble">
+      <span class="bl"><svg viewBox="0 0 22 22" width="16" height="16" aria-hidden="true"><path d="M2 4h18v12h-9l-5 4v-4H2z" fill="none" stroke="#A11F6B" stroke-width="2" stroke-linejoin="round"/></svg>チャットへ</span>
+      <p class="bq">実際、そうじゃないですか？</p>
+      <p class="note">当てはまるものを、チャットに送ってください。1つでも2つでも大丈夫です。</p>
+    </div>
+  </div>
+  <div class="page-num">02 / 32</div>
+</section>
+
+<!-- ============ 03 問い ============ -->
+<section class="slide center tint" data-idx="3" data-title="いまの発信">
+  <div class="lbl"><i></i>考えてみてください</div>
+  <h2 class="big">いまの発信に、<br><span class="u k">何が足りない</span>と思いますか。</h2>
+  <div class="bubble" style="margin-top:38px;align-items:center;max-width:620px;">
+    <span class="bl"><svg viewBox="0 0 22 22" width="16" height="16" aria-hidden="true"><path d="M2 4h18v12h-9l-5 4v-4H2z" fill="none" stroke="#A11F6B" stroke-width="2" stroke-linejoin="round"/></svg>チャットへ</span>
+    <p class="note">思いついたものを、そのまま送ってください。回答を待ってから次へ進みます。</p>
+  </div>
+  <div class="page-num">03 / 32</div>
+</section>
+
+<!-- ============ 04 答え ============ -->
+<section class="slide center" data-idx="4" data-title="足りないのは">
+  <div class="deco" style="width:360px;height:360px;left:-130px;bottom:-130px;background:radial-gradient(circle at 50% 50%,#F3ECFA,#FFFFFF);"></div>
+  <div class="deco" style="width:300px;height:300px;right:-110px;top:-110px;background:radial-gradient(circle at 50% 50%,#FCEEF4,#FFFFFF);"></div>
+  <div class="lbl" style="position:relative;z-index:1;"><i></i>その答えは</div>
+  <h2 class="big" style="position:relative;z-index:1;">足りないのは、<br><span class="k">ファン化の設計。</span></h2>
+  <div class="callout" style="margin-top:36px;max-width:760px;position:relative;z-index:1;">
+    <span class="cn" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--mag-wash);color:var(--mag-deep);font-size:15px;font-weight:700;flex:none;">！</span>
+    <p class="ct">投稿の数も、編集のうまさも、もう足りています。決まっていないのは、<b>見てくれた人がファンになるまでの順番</b>なんです。</p>
+  </div>
+  <div class="page-num">04 / 32</div>
+</section>
+
+<!-- ============ 05 今日の設計図 ============ -->
+<section class="slide" data-idx="5" data-title="今日の設計図">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>今日の全体像</div>
+        <h2 class="head">今日の設計図</h2>
+      </div>
+      <p class="hidx">迷ったら、この1枚に戻ってきてください</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="nmap lg">
+      <div class="nband base">
+        <span class="nbl">土台</span>
+        <span class="nbt">ファン化とは</span>
+      </div>
+      <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 3v13M6 12l6 6 6-6" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="n7">
+        <div class="n7i"><span class="nt"><i class="nnum">①</i>属人性</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">②</i>日常</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">③</i>マイナスの<br>ストーリー</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">④</i>共通点</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">⑤</i>理想の未来</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">⑥</i>実績</span></div>
+        <div class="n7i"><span class="nt"><i class="nnum">⑦</i>ビジュアライズ</span></div>
+      </div>
+      <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 3v13M6 12l6 6 6-6" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="nband goal">
+        <span class="nbl">出口</span>
+        <span class="nbt">公式LINE</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">05 / 32</div>
+</section>
+
+<!-- ============ 06 部扉 土台 ============ -->
+<section class="slide door tint-p" data-idx="6" data-title="土台">
+  <div class="head-block">
+    <div class="dnum">土台</div>
+    <h2>ファン化とは</h2>
+    <div class="dband"></div>
+    <p class="dsub">7つのノウハウの前に、ゴールを1つにします。</p>
+  </div>
+  <div class="body-block">
+    <div class="figbox fill">
+      <div class="nmap mini">
+        <div class="nband base on">
+          <span class="nbl">土台</span>
+          <span class="nbt">ファン化とは</span>
+        </div>
+        <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3v13M6 12l6 6 6-6" stroke="#B9B2C4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="n7">
+          <div class="n7i"><span class="nt"><i class="nnum">①</i>属人性</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">②</i>日常</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">③</i>マイナスの<br>ストーリー</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">④</i>共通点</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑤</i>理想の未来</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑥</i>実績</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑦</i>ビジュアライズ</span></div>
+        </div>
+        <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3v13M6 12l6 6 6-6" stroke="#B9B2C4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="nband goal">
+          <span class="nbl">出口</span>
+          <span class="nbt">公式LINE</span>
+        </div>
+      </div>
+      <p class="note" style="text-align:center;margin-top:18px;">いまは、ここです。</p>
+    </div>
+  </div>
+  <div class="page-num">06 / 32</div>
+</section>
+
+<!-- ============ 07 ファン化の正体 ============ -->
+<section class="slide center tint-p" data-idx="7" data-title="アイドルと一緒">
+  <div class="lbl"><i></i>ファン化の正体</div>
+  <blockquote class="quote multi">
+    <div class="mk" aria-hidden="true">&ldquo;</div>
+    <p class="q">「これアイドルと一緒ですね」</p>
+    <p class="q2">「その人がファンになってしまってたら、何でも売れます」</p>
+  </blockquote>
+  <div class="qbar" style="width:900px;margin-top:20px;">
+    <span class="qt">「この人についていこうと思われる存在になれば」</span>
+  </div>
+  <div class="page-num">07 / 32</div>
+</section>
+
+<!-- ============ 08 ストーリーズの役割 ============ -->
+<section class="slide" data-idx="8" data-title="信頼を作る場所">
+  <div class="head-block">
+    <div class="lbl"><i></i>ストーリーズの役割</div>
+    <h2 class="head q">「一定、自分のことを知っている人にしか表示できないのが<br>ストーリーズになります」</h2>
+  </div>
+  <div class="body-block">
+    <div class="duo fill cap">
+      <div class="duo-c">
+        <svg viewBox="0 0 120 80" width="150" height="100" role="img" aria-label="長方形が3つ並び、右向きに広がる形">
+          <g fill="#FFFFFF" stroke="#D8D3DF" stroke-width="2"><rect x="8" y="14" width="30" height="52" rx="7"/><rect x="45" y="14" width="30" height="52" rx="7"/><rect x="82" y="14" width="30" height="52" rx="7"/></g>
+          <g fill="#C9C4D1"><path d="M18 32l12 8-12 8z"/><path d="M55 32l12 8-12 8z"/><path d="M92 32l12 8-12 8z"/></g>
+        </svg>
+        <b>リール</b>
+        <span>知ってもらう</span>
+      </div>
+      <div class="duo-c b">
+        <svg viewBox="0 0 120 80" width="150" height="100" role="img" aria-label="二重の円が重なっている形">
+          <circle cx="60" cy="40" r="32" fill="none" stroke="#E1A8C9" stroke-width="3"/>
+          <circle cx="60" cy="40" r="21" fill="#C13584"/>
+          <circle cx="60" cy="40" r="7" fill="#FFFFFF"/>
+        </svg>
+        <b>ストーリーズ</b>
+        <span>信頼をつくる</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="qbar">
+      <span class="qt">「これ1日1ストーリー以上。ストーリーが途切れないようにだけ必ずしてほしい」</span>
+    </div>
+  </div>
+  <div class="page-num">08 / 32</div>
+</section>
+
+<!-- ============ 09 黄金比率 ============ -->
+<section class="slide" data-idx="9" data-title="黄金比率">
+  <div class="head-block">
+    <div class="lbl"><i></i>ストーリーズの中身</div>
+    <h2 class="head">ストーリーズの<span class="k">黄金比率</span></h2>
+  </div>
+  <div class="body-block">
+    <div class="figbox">
+      <span class="bar-track tall">
+        <i class="seg" style="width:80%;background:#833AB4;">価値提供 80%</i>
+        <i class="seg" style="width:6.7%;background:#C13584;"></i>
+        <i class="seg" style="width:6.7%;background:#E1306C;"></i>
+        <i class="seg" style="width:6.6%;background:#6B2A96;"></i>
+      </span>
+      <div class="rowlab">
+        <span><i style="background:#833AB4;"></i>価値提供</span>
+        <span><i style="background:#C13584;"></i>実績</span>
+        <span><i style="background:#E1306C;"></i>マインドセット</span>
+        <span><i style="background:#6B2A96;"></i>ローンチ</span>
+      </div>
+    </div>
+    <div class="qstack" style="margin-top:20px;">
+      <div class="qs-i sm"><p>「ストーリーズはとりあえずみんなのためになることを発信しよう」</p></div>
+      <div class="qs-i sm ng"><p>「正直言うとこのローンチが一番したいんですよ」</p></div>
+      <div class="qs-i sm on"><p>「まずは価値提供ですね。圧倒的な価値提供」</p></div>
+    </div>
+  </div>
+  <div class="page-num">09 / 32</div>
+</section>
+
+<!-- ============ 10 部扉 7つのノウハウ ============ -->
+<section class="slide door tint-p" data-idx="10" data-title="7つのノウハウ">
+  <div class="head-block">
+    <div class="dnum">本編</div>
+    <h2>具体のファン化ノウハウ 7</h2>
+    <div class="dband"></div>
+  </div>
+  <div class="body-block">
+    <div class="figbox fill">
+      <div class="nmap mini">
+        <div class="nband base">
+          <span class="nbl">土台</span>
+          <span class="nbt">ファン化とは</span>
+        </div>
+        <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3v13M6 12l6 6 6-6" stroke="#B9B2C4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="n7 on">
+          <div class="n7i"><span class="nt"><i class="nnum">①</i>属人性</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">②</i>日常</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">③</i>マイナスの<br>ストーリー</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">④</i>共通点</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑤</i>理想の未来</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑥</i>実績</span></div>
+          <div class="n7i"><span class="nt"><i class="nnum">⑦</i>ビジュアライズ</span></div>
+        </div>
+        <span class="ndown" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3v13M6 12l6 6 6-6" stroke="#B9B2C4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="nband goal">
+          <span class="nbl">出口</span>
+          <span class="nbt">公式LINE</span>
+        </div>
+      </div>
+      <p class="note" style="text-align:center;margin-top:18px;">いまは、ここです。</p>
+    </div>
+  </div>
+  <div class="page-num">10 / 32</div>
+</section>
+
+<!-- ============ 11 ①属人性 比率 ============ -->
+<section class="slide" data-idx="11" data-title="①属人性 5:5">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ① 属人性</div>
+        <h2 class="head">「ノウハウ<span class="k">5割</span>、属人性<span class="k">5割</span>」</h2>
+      </div>
+      <p class="hidx">ノウハウ 1 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="fill cap" style="display:flex;gap:28px;align-items:center;">
+      <div class="figbox" style="width:470px;flex:none;">
+        <span class="bar-track tall">
+          <i class="seg" style="width:50%;background:#833AB4;">ノウハウ 5割</i>
+          <i class="seg" style="width:50%;background:#C13584;">属人性 5割</i>
+        </span>
+        <div class="reels" style="margin-top:24px;">
+          <div class="reel on"><i></i></div>
+          <div class="reel"><i></i></div>
+          <div class="reel"><i></i></div>
+        </div>
+        <p class="figcap">3本に1本</p>
+      </div>
+      <div class="qstack" style="flex:1;min-width:0;">
+        <div class="qs-i sm"><p>「尺としても5：5ぐらい」</p></div>
+        <div class="qs-i sm"><p>「毎回これやると飽きるから、３本に１本ぐらいが良い」</p></div>
+        <div class="qs-i sm on"><p>「顔面出してゴリゴリ編集せず喋ってる動画多いのは属人性だすためだと思う」</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">11 / 32</div>
+</section>
+
+<!-- ============ 12 ①属人性 1本の中の設計 ============ -->
+<section class="slide" data-idx="12" data-title="中盤から属人性">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ① 属人性</div>
+        <h2 class="head q">「冒頭フックは情報系で、ノウハウ押し動画なんだけど、<br>中盤から属人性に変わっていくイメージ」</h2>
+      </div>
+      <p class="hidx">ノウハウ 1 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="figbox fill cap-s">
+      <span class="bar-track tall">
+        <i class="seg" style="width:45%;background:#833AB4;">冒頭フック（ノウハウ）</i>
+        <i class="seg" style="width:55%;background:#C13584;">中盤から属人性</i>
+      </span>
+      <div class="axis">
+        <span class="axl">1本の動画</span>
+        <span class="axline"></span>
+        <span aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h13M13 6l6 6-6 6" stroke="#C9C4D1" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="qbar">
+      <span class="qt">「情報系に属人性を足すことはできると思うんですよね」</span>
+    </div>
+  </div>
+  <div class="page-num">12 / 32</div>
+</section>
+
+<!-- ============ 13 ②日常 定義 ============ -->
+<section class="slide" data-idx="13" data-title="②日常は1割">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ② 日常</div>
+        <h2 class="head">「<span class="k">1割プライベート</span>(親近感、共感、理想を見せる)」</h2>
+      </div>
+      <p class="hidx">ノウハウ 2 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="figbox">
+      <div class="tenbar">
+        <i style="background:#833AB4;"></i><i style="background:#833AB4;"></i><i style="background:#833AB4;"></i><i style="background:#833AB4;"></i><i style="background:#833AB4;"></i><i style="background:#833AB4;"></i><i style="background:#833AB4;"></i>
+        <i style="background:#C13584;"></i>
+        <i style="background:#E1306C;"></i>
+        <i style="background:#A11F6B;box-shadow:0 0 0 2px #A11F6B;"></i>
+      </div>
+      <div class="tenlab">
+        <span style="grid-column:span 7;">価値提供</span>
+        <span>マインド<br>セット</span>
+        <span>実績</span>
+        <span class="k">プライ<br>ベート</span>
+      </div>
+    </div>
+    <div class="qstack" style="margin-top:20px;">
+      <div class="qs-i sm"><p>「割合は7割価値提供、1割マインドセット、1割実績、1割プライベート(親近感、共感、理想を見せる)って感じ。」</p></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:18px;">
+      <p class="note" style="flex:none;font-weight:700;color:var(--ink);">プライベートの役割</p>
+      <span class="chip g w">親近感</span><span class="chip g w">共感</span><span class="chip g w">理想</span>
+    </div>
+  </div>
+  <div class="page-num">13 / 32</div>
+</section>
+
+<!-- ============ 14 ②日常 出し方の境界 ============ -->
+<section class="slide" data-idx="14" data-title="日記にしない">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ② 日常</div>
+        <h2 class="head q">「ただただ自分の日記を上げると、<br>これは全く意味のないことなので」</h2>
+      </div>
+      <p class="hidx">ノウハウ 2 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="vs fill cap">
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+        <div class="vh" style="justify-content:center;"><span class="mark x">✕</span>お出かけ報告だけ</div>
+        <svg viewBox="0 0 200 80" width="250" height="100" role="img" aria-label="同じ大きさの四角が1つだけある図">
+          <rect x="66" y="14" width="68" height="52" rx="10" fill="#FFFFFF" stroke="#D8D3DF" stroke-width="2"/>
+          <rect x="82" y="32" width="36" height="6" rx="3" fill="#C9C4D1"/>
+          <rect x="82" y="46" width="24" height="6" rx="3" fill="#C9C4D1"/>
+        </svg>
+      </div>
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span>学びを1つ足す</div>
+        <p style="font-size:19px;line-height:1.7;color:var(--ink);font-weight:700;">「ここにプラスアルファでどれだけその勉強になることを入れられるか」</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div style="display:flex;gap:12px;">
+      <div class="qs-i sm" style="flex:none;"><p>「Vlog系伸びるので擦りましょう！」</p></div>
+      <div class="qs-i sm" style="flex:1;min-width:0;"><p>「ビジネスのためのSNSなので、そういうのはちゃんと住み分けをしてね、やっていきましょうと。」</p></div>
+    </div>
+  </div>
+  <div class="page-num">14 / 32</div>
+</section>
+
+<!-- ============ 15 ③マイナス 本質 ============ -->
+<section class="slide" data-idx="15" data-title="③マイナスのストーリー">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ③ マイナスのストーリー</div>
+        <h2 class="big sm">「本質は<span class="k">自己開示</span>」</h2>
+      </div>
+      <p class="hidx">ノウハウ 3 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="fill cap" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:center;">
+      <div class="qs-i"><p>「言いたくない嫌なことを話すって重要で」</p></div>
+      <div class="qs-i"><p>「共感を得て、秘密を共有した感覚になって仲間意識を持ってくれる」</p></div>
+      <div class="qs-i"><p>「いかに皮を被らずさらけ出せるか」</p></div>
+      <div class="qs-i on"><p>「リアル感が面白いし信頼できる」</p></div>
+    </div>
+  </div>
+  <div class="page-num">15 / 32</div>
+</section>
+
+<!-- ============ 16 ③マイナス 自慢との対比 ============ -->
+<section class="slide" data-idx="16" data-title="自慢より失敗談">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ③ マイナスのストーリー</div>
+        <h2 class="head">自慢より<span class="k">失敗談</span></h2>
+      </div>
+      <p class="hidx">ノウハウ 3 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="vs fill cap">
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark x">✕</span></div>
+        <p style="font-size:17.5px;line-height:1.75;color:var(--ink-2);">「おいしいご飯食べに来ましたとか、高級料理食べましたとか、海外旅行行きましたみたいな、いいホテル泊まってますみたいな、そんなアピールってあんまり意味なくて」</p>
+      </div>
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span></div>
+        <p style="font-size:21px;line-height:1.7;color:var(--ink);font-weight:700;">「むしろ失敗談とかを言って、発信者自身に共感してもらったり」</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="qbar">
+      <span class="qt">「何ならもっと自分より酷いスタートですね」</span>
+    </div>
+  </div>
+  <div class="page-num">16 / 32</div>
+</section>
+
+<!-- ============ 17 ③マイナス 3変化 ============ -->
+<section class="slide" data-idx="17" data-title="3変化">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ③ マイナスのストーリー</div>
+        <h2 class="head">「この<span class="k">3変化</span>を見せていくことで、信頼は集まっていく」</h2>
+      </div>
+      <p class="hidx">ノウハウ 3 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="figbox">
+      <div style="width:780px;margin:0 auto;">
+        <svg viewBox="0 0 920 250" width="780" height="212" role="img" aria-label="谷まで下がり、きっかけを経ていまへ上がっていく線">
+          <line x1="20" y1="222" x2="900" y2="222" stroke="#E6E2EA" stroke-width="2"/>
+          <path d="M40 58C92 128 122 184 156 200C240 198 356 192 460 178C574 148 664 112 762 78" fill="none" stroke="#833AB4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M762 78l122 -42" fill="none" stroke="#E1306C" stroke-width="5" stroke-linecap="round" stroke-dasharray="11 10"/>
+          <g fill="#C13584"><circle cx="156" cy="200" r="10"/><circle cx="460" cy="178" r="9"/><circle cx="762" cy="78" r="9"/></g>
+          <g stroke="#C9C4D1" stroke-width="1.4" stroke-dasharray="4 5">
+            <line x1="156" y1="200" x2="156" y2="222"/><line x1="460" y1="178" x2="460" y2="222"/><line x1="762" y1="78" x2="762" y2="222"/>
+          </g>
+        </svg>
+        <div style="position:relative;height:26px;margin-top:4px;">
+          <span class="note" style="position:absolute;left:132px;transform:translateX(-50%);font-weight:700;color:var(--ink);white-space:nowrap;">どん底</span>
+          <span class="note" style="position:absolute;left:390px;transform:translateX(-50%);font-weight:700;color:var(--ink);white-space:nowrap;">きっかけ</span>
+          <span class="note" style="position:absolute;left:646px;transform:translateX(-50%);font-weight:700;color:var(--ink);white-space:nowrap;">今</span>
+        </div>
+      </div>
+    </div>
+    <div class="qstack" style="margin-top:16px;">
+      <div class="qs-i sm"><p>「たった3年で変わりました、たった半年で変わりましたって言ったら、これ自分にもできそうかなって思われますよね」</p></div>
+      <div class="qs-i sm on"><p>「どん底から這い上がって、このきっかけで変わりました。今はめちゃめちゃ幸せです。」</p></div>
+    </div>
+  </div>
+  <div class="page-num">17 / 32</div>
+</section>
+
+<!-- ============ 18 ③マイナス 愚痴との境界 ============ -->
+<section class="slide" data-idx="18" data-title="愚痴は出さない">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ③ マイナスのストーリー</div>
+        <h2 class="head">マイナスのストーリーと、<span class="k">愚痴は別物</span>。</h2>
+      </div>
+      <p class="hidx">ノウハウ 3 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="vs fill" style="max-height:210px;">
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span></div>
+        <p style="font-size:21px;line-height:1.6;color:var(--ink);font-weight:700;">過去のマイナス（乗り越えた話）</p>
+      </div>
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark x">✕</span></div>
+        <p style="font-size:21px;line-height:1.6;color:var(--ink-2);font-weight:700;">「SNSで愚痴言うっていうのは絶対にやめてください」</p>
+      </div>
+    </div>
+    <div class="qstack" style="margin-top:18px;">
+      <div class="qs-i sm"><p>「ポジティブな言葉を言っている人と、ネガティブな言葉を言っている人、これどっちが人に好かれますかというと、圧倒的にポジティブな人ですよね」</p></div>
+      <div class="qs-i sm ng"><p>「ビジネスアカウントで言うと、一瞬でアカウントが地に落ちるので」</p></div>
+    </div>
+  </div>
+  <div class="page-num">18 / 32</div>
+</section>
+
+<!-- ============ 19 ワーク 自己分析 ============ -->
+<section class="slide" data-idx="19" data-title="ワーク 自己分析">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ワーク</div>
+        <h2 class="head">大変だった時期を<span class="k">思い出す</span></h2>
+      </div>
+      <p class="hidx">目安 15分</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <ul class="stack fill cap">
+      <li class="stack-i"><span class="sn">1</span><span><b>どん底のとき何があったかを書く</b></span></li>
+      <li class="stack-i"><span class="sn">2</span><span><b>変わったきっかけを書く</b></span></li>
+      <li class="stack-i on"><span class="sn">3</span><span><b>今の状態を書く</b></span></li>
+    </ul>
+  </div>
+  <div class="page-num">19 / 32</div>
+</section>
+
+<!-- ============ 20 ④共通点 ストーリートーク ============ -->
+<section class="slide" data-idx="20" data-title="④共通点">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ④ 共通点</div>
+        <h2 class="head">「まず<span class="k">共通点</span>って共感するのさ」</h2>
+      </div>
+      <p class="hidx">ノウハウ 4 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="qstack fill cap">
+      <div class="qs-i"><span class="qn">1</span><p>「そこをこのストーリートークって言って、まず共通点って共感するのさ。いや気持ちめっちゃ分かりますみたいな」</p></div>
+      <div class="qs-i"><span class="qn">2</span><p>「ポジショントーク感を消すっていう話ですね」</p></div>
+      <div class="qs-i ng"><span class="qn">✕</span><p>「『お前稼げないから稼げた方がいいよ』みたいな、めっちゃウザいじゃないですか」</p></div>
+    </div>
+  </div>
+  <div class="page-num">20 / 32</div>
+</section>
+
+<!-- ============ 21 ④共通点 効能 ============ -->
+<section class="slide" data-idx="21" data-title="イヤラシさが消える">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ④ 共通点</div>
+        <h2 class="head">「この<span class="k">イヤラシさが消える</span>じゃないですか」</h2>
+      </div>
+      <p class="hidx">ノウハウ 4 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="duo">
+      <div class="duo-c">
+        <svg viewBox="0 0 200 120" width="250" height="150" role="img" aria-label="上の円から下の円へ、上から下に矢印が向いている図">
+          <circle cx="100" cy="26" r="20" fill="#C9C4D1"/>
+          <path d="M100 54v34" stroke="#C9C4D1" stroke-width="4" stroke-linecap="round"/>
+          <path d="M92 80l8 10 8-10" stroke="#C9C4D1" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="100" cy="98" r="14" fill="none" stroke="#C9C4D1" stroke-width="3"/>
+        </svg>
+        <div class="vh" style="justify-content:center;"><span class="mark x">✕</span></div>
+        <span>上から指示する</span>
+      </div>
+      <div class="duo-c b">
+        <svg viewBox="0 0 200 120" width="250" height="150" role="img" aria-label="左右に並んだ2つの円が、横向きの矢印でつながっている図">
+          <circle cx="54" cy="60" r="20" fill="#C13584"/>
+          <circle cx="146" cy="60" r="20" fill="none" stroke="#C13584" stroke-width="3"/>
+          <path d="M80 60h40" stroke="#833AB4" stroke-width="4" stroke-linecap="round"/>
+          <path d="M112 52l10 8-10 8" stroke="#833AB4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M88 52l-10 8 10 8" stroke="#833AB4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="vh" style="justify-content:center;"><span class="mark o">◎</span></div>
+        <span>横に並んで自分の話をする</span>
+      </div>
+    </div>
+    <div class="qstack" style="margin-top:20px;">
+      <div class="qs-i sm"><p>「言ってることは変わんないですよね」</p></div>
+      <div class="qs-i sm on"><p>「この自分の話をするってのが、ストーリートークって言うんですけど」</p></div>
+    </div>
+  </div>
+  <div class="page-num">21 / 32</div>
+</section>
+
+<!-- ============ 22 ⑤理想の未来 ============ -->
+<section class="slide" data-idx="22" data-title="⑤理想の未来">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ⑤ 理想の未来</div>
+        <h2 class="head">「そこからの今稼いでるで<span class="k">理想の未来＝尊敬</span>になる」</h2>
+      </div>
+      <p class="hidx">ノウハウ 5 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="flow fill" style="max-height:200px;">
+      <div class="bx" style="justify-content:center;align-items:center;text-align:center;"><b>マイナスの<br>ストーリー</b></div>
+      <span class="ar" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M6 3l8 7-8 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="bx" style="justify-content:center;align-items:center;text-align:center;"><b>成り上がり</b></div>
+      <span class="ar" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M6 3l8 7-8 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="bx on" style="justify-content:center;align-items:center;text-align:center;"><b>理想の未来<br>＝尊敬</b></div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div style="display:flex;gap:12px;">
+      <div class="qs-i sm" style="flex:none;"><p>「ストーリーからの成り上がりが重要」</p></div>
+      <div class="qs-i sm on" style="flex:1;min-width:0;"><p>「そこからあとは理想の未来を出せるともっと良い」</p></div>
+    </div>
+  </div>
+  <div class="page-num">22 / 32</div>
+</section>
+
+<!-- ============ 23 ⑤理想の未来 ワーク ============ -->
+<section class="slide" data-idx="23" data-title="ワーク 素材集め">
+  <div class="head-block">
+    <div class="lbl"><i></i>ワーク</div>
+    <h2 class="head">理想の未来の<span class="k">素材</span>を撮り溜める</h2>
+  </div>
+  <div class="body-block">
+    <div style="display:flex;gap:12px;">
+      <div class="qs-i sm" style="flex:1;min-width:0;"><p>「家族旅行、いいホテルの写真とか」</p></div>
+      <div class="qs-i sm on" style="flex:1;min-width:0;"><p>「素材たくさん集めて欲しい」</p></div>
+    </div>
+    <ul class="stack" style="margin-top:20px;">
+      <li class="stack-i"><span class="sn">1</span><span><b>今週の「ちょっといい瞬間」をスマホで撮る</b></span></li>
+      <li class="stack-i on"><span class="sn">2</span><span><b>アルバムに「未来素材」フォルダを作って貯める</b></span></li>
+    </ul>
+  </div>
+  <div class="page-num">23 / 32</div>
+</section>
+
+<!-- ============ 24 ⑥実績 物語で語る ============ -->
+<section class="slide" data-idx="24" data-title="⑥実績は物語で">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ⑥ 実績</div>
+        <h2 class="head">「<span class="k">数字ではなくストーリー</span>で語る」</h2>
+      </div>
+      <p class="hidx">ノウハウ 6 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="qbar">
+      <span class="qt">「これはね一言で言うと物語で語ると言って」</span>
+    </div>
+    <div class="flow" style="margin-top:18px;">
+      <div class="bx" style="justify-content:center;align-items:center;text-align:center;padding:24px 20px;"><b>道のりの失敗談</b></div>
+      <span class="ar" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M6 3l8 7-8 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="bx" style="justify-content:center;align-items:center;text-align:center;padding:24px 20px;"><b>変化</b></div>
+      <span class="ar" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M6 3l8 7-8 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="bx on" style="justify-content:center;align-items:center;text-align:center;padding:24px 20px;"><b>最後に数字</b></div>
+    </div>
+    <div class="qstack" style="margin-top:18px;">
+      <div class="qs-i sm"><p>「ここまでの道のりの失敗談とか、どういうものをやって、どういう変化があって今の自分になれたかっていう、そこで最終的に数字を出して、これが一番ベストです。」</p></div>
+    </div>
+  </div>
+  <div class="page-num">24 / 32</div>
+</section>
+
+<!-- ============ 25 ⑥実績 誰の実績か ============ -->
+<section class="slide" data-idx="25" data-title="生徒さんの実績">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ⑥ 実績</div>
+        <h2 class="head">自分の実績より、<span class="k">生徒さん・お客様の実績</span>。</h2>
+      </div>
+      <p class="hidx">ノウハウ 6 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="qbar">
+      <span class="qt">「基本的にこの第三者の意見というか、ものすごい説得力があって」</span>
+    </div>
+    <div class="vs" style="margin-top:18px;">
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark x">✕</span></div>
+        <p style="font-size:19px;line-height:1.7;color:var(--ink-2);font-weight:700;">「ただ権威性アピールしてもただのうざい怪しい奴」</p>
+      </div>
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span></div>
+        <p style="font-size:19px;line-height:1.7;color:var(--ink);font-weight:700;">「800人の生徒抱えてるって権威性も、ちゃんとマネタイズしてきた実績もある」</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <p class="note"><span class="k">権威性は、持っておく。前面には出さない。</span></p>
+  </div>
+  <div class="page-num">25 / 32</div>
+</section>
+
+<!-- ============ 26 ⑥実績 実演例 ============ -->
+<section class="slide" data-idx="26" data-title="語り方の実例">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>語り方の例</div>
+      </div>
+      <p class="hidx">ノウハウ 6 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="panel">
+      <p class="pt">「僕もともと会社、不動産の営業をしていて、結構大手の会社ではあったんですけど、手取りがね17万ぐらいみたいな。本当に生活も苦しいぐらいだったんですよね」</p>
+      <p class="pt">「1日8時間10時間仕事して、その帰りにスターバックスとかによって1時間2時間副業してから帰って、急いでお風呂入って寝て、また朝早く起きてみたいな生活をずっと繰り返してましたよ」</p>
+      <div class="pend">
+        <span class="mark o">◎</span>
+        <p>「やっと3ヶ月目で芽が出て、4ヶ月目、5ヶ月目とどんどん収入が上がっていって」</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">26 / 32</div>
+</section>
+
+<!-- ============ 27 ⑦ビジュアライズ ============ -->
+<section class="slide" data-idx="27" data-title="⑦ビジュアライズ">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ⑦ ビジュアライズ</div>
+        <h2 class="head q">「頭の中でその情景がもうめちゃめちゃリアルに<br>想像できるような感じにしてほしい」</h2>
+      </div>
+      <p class="hidx">ノウハウ 7 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="vs fill cap">
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark x">✕</span>Before</div>
+        <p style="font-size:28px;line-height:1.6;color:var(--ink-2);font-weight:700;">「会社つらくて」</p>
+      </div>
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span>After</div>
+        <p style="font-size:20px;line-height:1.75;color:var(--ink);font-weight:700;">「会社に勤めて、毎日満員電車に乗って、めちゃくちゃ死んだ気持ちで泣きそうになりながら出勤して」</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="qbar">
+      <span class="qt">「絵をしゃべった方が良くて」</span>
+    </div>
+  </div>
+  <div class="page-num">27 / 32</div>
+</section>
+
+<!-- ============ 28 ⑦ビジュアライズ 効能 ============ -->
+<section class="slide" data-idx="28" data-title="具体はCTAを強くする">
+  <div class="head-block">
+    <div class="hrow">
+      <div>
+        <div class="lbl"><i></i>ノウハウ⑦ ビジュアライズ</div>
+        <h2 class="head q">「イメージがしやすいんで、自分ごととして<br>取りやすくなって、CTAも強くなる」</h2>
+      </div>
+      <p class="hidx">ノウハウ 7 / 7</p>
+    </div>
+  </div>
+  <div class="body-block">
+    <div class="vs fill cap">
+      <div class="vs-col a" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark x">✕</span></div>
+        <p style="font-size:21px;line-height:1.7;color:var(--ink-2);font-weight:700;">「人生が変わったって結構抽象的じゃないですか」</p>
+      </div>
+      <div class="vs-col b" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="vh"><span class="mark o">◎</span></div>
+        <p style="font-size:21px;line-height:1.7;color:var(--ink);font-weight:700;">「月5万の収益化っていうのは結構具体的」</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block">
+    <div class="qbar">
+      <span class="qt">「商品の説明ではなくて、商品をつけた後の未来を描く」</span>
+    </div>
+  </div>
+  <div class="page-num">28 / 32</div>
+</section>
+
+<!-- ============ 29 NG集 ============ -->
+<section class="slide" data-idx="29" data-title="ファン化を壊すもの">
+  <div class="head-block">
+    <div class="lbl"><i></i>ファン化を壊すもの</div>
+    <h2 class="head">ファン化を壊す<span class="k">3つ</span></h2>
+  </div>
+  <div class="body-block">
+    <div class="qstack fill cap">
+      <div class="qs-i sm ng"><span class="qn">✕</span><p>「価値提供せずにひたすら自分の商品を宣伝しまくってるとか、アフィリエイトリンク貼りまくってる人、これは圧倒的にフォロワーさんからの信頼が損なわれるので全く売れなくなります」</p></div>
+      <div class="qs-i sm ng"><span class="qn">✕</span><p>「2つ目が愚痴を言うという、ネガティブな発言ですね」</p></div>
+      <div class="qs-i sm ng"><span class="qn">✕</span><p>「デザインの不統一感になります。デザインを統一しないって、これがやってはいけないことになります。」</p></div>
+    </div>
+  </div>
+  <div class="page-num">29 / 32</div>
+</section>
+
+<!-- ============ 30 全体像 ============ -->
+<section class="slide" data-idx="30" data-title="アカウントの全体像">
+  <div class="head-block">
+    <div class="lbl"><i></i>アカウントの全体像</div>
+    <h2 class="head q">「リール動画1本じゃなく、<br>その背景にあるアカウントの全体像が超大事」</h2>
+  </div>
+  <div class="body-block">
+    <div class="qstack fill cap-s">
+      <div class="qs-i on"><p>「まず1つ目が親密度ですね。これはDMをどれくらいしているかとか、いいねをもらっているかとか」</p></div>
+    </div>
+    <div class="callout" style="margin-top:22px;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--mag-wash);color:var(--mag-deep);font-size:15px;font-weight:700;flex:none;">✓</span>
+      <p class="ct"><b>反応してくれた人を、放置しない。</b></p>
+    </div>
+  </div>
+  <div class="page-num">30 / 32</div>
+</section>
+
+<!-- ============ 31 まとめ ============ -->
+<section class="slide" data-idx="31" data-title="まとめ">
+  <div class="head-block">
+    <span class="pill">まとめ</span>
+    <h2 class="head" style="margin-top:16px;">今日覚えてほしいのはこの<span class="k">3つ</span>。</h2>
+  </div>
+  <div class="body-block">
+    <div class="three fill" style="max-height:350px;">
+      <div class="three-c">
+        <div class="tn">1</div>
+        <h4>量を決める</h4>
+        <p style="font-size:20px;font-weight:700;color:var(--ink);line-height:1.6;">「ノウハウ5割、属人性5割」</p>
+      </div>
+      <div class="three-c">
+        <div class="tn">2</div>
+        <h4>核心</h4>
+        <p style="font-size:20px;font-weight:700;color:var(--ink);line-height:1.6;">「本質は自己開示」</p>
+      </div>
+      <div class="three-c">
+        <div class="tn">3</div>
+        <h4>話し方</h4>
+        <p style="font-size:20px;font-weight:700;color:var(--ink);line-height:1.6;">「絵をしゃべった方が良くて」</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">31 / 32</div>
+</section>
+
+<!-- ============ 32 今日の1歩 ============ -->
+<section class="slide" data-idx="32" data-title="今日の1歩">
+  <div class="head-block" style="position:relative;z-index:1;">
+    <div class="lbl"><i></i>今すぐ、ひとつだけ</div>
+    <h2 class="head">「とにかく<span class="k">毎日の積み重ね</span>ですね」</h2>
+  </div>
+  <div class="body-block" style="position:relative;z-index:1;">
+    <div class="first">
+      <div class="ftxt">
+        <span class="fl">今日</span>
+        <p class="ft">ストーリーズを1本出して、<br>ONEの公式LINEの添削に送る。</p>
+        <p class="fn">出したら、今日はそれで終わりで構いません。</p>
+      </div>
+      <div class="ffig">
+        <span class="fsl">今日の手順</span>
+        <span class="fstep"><i>1</i>7つのノウハウから1つ選ぶ</span>
+        <span class="fstep"><i>2</i>学びを1つ足す</span>
+        <span class="fstep"><i>3</i>ONEの公式LINEへ送る</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot-block" style="position:relative;z-index:1;">
+    <p class="note">凝らなくて大丈夫です。今日の1本を、今日のうちに出す。それだけやってください。</p>
+    <p class="disc">インスタ集客の設計図 ／ SNS合宿 講義資料 ※本資料の内容は、成果を保証するものではありません。実践の結果には個人差があります。</p>
+  </div>
+  <div class="page-num">32 / 32</div>
+</section>
+
+      <button class="nav prev" id="navPrev" type="button" aria-label="前のスライド"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 3l-7 7 7 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="nav next" id="navNext" type="button" aria-label="次のスライド"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3l7 7-7 7" stroke="#C13584" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="idx-btn" id="idxBtn" type="button">目次</button>
+      <div class="idx-wrap" id="idxWrap">
+        <div class="idx-h">目次（全32枚）</div>
+        <div class="idx-grid" id="idxGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var TOTAL = slides.length;
+  var current = 1;
+  var stage = document.getElementById('stage');
+  var bar = document.getElementById('progressBar');
+  var idxWrap = document.getElementById('idxWrap');
+  var idxGrid = document.getElementById('idxGrid');
+
+  function resize(){
+    var s = Math.min(window.innerWidth/1280, window.innerHeight/720);
+    document.documentElement.style.setProperty('--s', s);
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+  resize();
+
+  function render(){
+    for (var i=0;i<slides.length;i++){
+      slides[i].classList.toggle('active', Number(slides[i].getAttribute('data-idx')) === current);
+    }
+    bar.style.width = ((current-1)/(TOTAL-1)*100) + '%';
+    if (location.hash !== '#'+current){ history.replaceState(null,'','#'+current); }
+  }
+  function goTo(n){ current = Math.max(1, Math.min(TOTAL, n)); closeIdx(); render(); }
+  function go(d){ goTo(current + d); }
+
+  document.addEventListener('keydown', function(e){
+    if (idxWrap.classList.contains('open') && e.key !== 'Escape') return;
+    switch(e.key){
+      case 'ArrowRight': case ' ': case 'PageDown': case 'ArrowDown': go(1); e.preventDefault(); break;
+      case 'ArrowLeft': case 'PageUp': case 'ArrowUp': go(-1); e.preventDefault(); break;
+      case 'Home': goTo(1); e.preventDefault(); break;
+      case 'End': goTo(TOTAL); e.preventDefault(); break;
+      case 'Escape': closeIdx(); break;
+      case 'f': case 'F':
+        if (!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+        else { document.exitFullscreen && document.exitFullscreen(); }
+        break;
+    }
+  });
+
+  stage.addEventListener('click', function(e){
+    if (e.target.closest('.nav') || e.target.closest('.idx-btn') || e.target.closest('.idx-wrap')) return;
+    var r = stage.getBoundingClientRect();
+    go((e.clientX - r.left) < r.width * 0.25 ? -1 : 1);
+  });
+  document.getElementById('navPrev').addEventListener('click', function(e){ e.stopPropagation(); go(-1); });
+  document.getElementById('navNext').addEventListener('click', function(e){ e.stopPropagation(); go(1); });
+
+  var tx=0, ty=0;
+  stage.addEventListener('touchstart', function(e){ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+  }, {passive:true});
+
+  slides.forEach(function(s){
+    var b = document.createElement('button');
+    b.type='button';
+    var n = s.getAttribute('data-idx');
+    b.innerHTML = '<b>'+(n.length<2?'0'+n:n)+'</b><span></span>';
+    b.querySelector('span').textContent = s.getAttribute('data-title') || '';
+    b.addEventListener('click', function(e){ e.stopPropagation(); goTo(Number(n)); });
+    idxGrid.appendChild(b);
+  });
+  function closeIdx(){ idxWrap.classList.remove('open'); }
+  document.getElementById('idxBtn').addEventListener('click', function(e){
+    e.stopPropagation(); idxWrap.classList.toggle('open');
+  });
+  idxWrap.addEventListener('click', function(e){ if (e.target === idxWrap) closeIdx(); });
+
+  var h = Number((location.hash||'').replace('#',''));
+  if (h >= 1 && h <= TOTAL) current = h;
+  render();
+})();
+</script>
+</body>
+</html>
