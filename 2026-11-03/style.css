@@ -45,3 +45,35 @@
 @media screen and (max-width:700px), screen and (max-width:1000px) and (max-height:500px){.viewer-controls{gap:6px}.presenter.read .slide h1{font-size:36px}.presenter.read .slide h2{font-size:28px}}
 @media(prefers-reduced-motion:reduce){.page-enter{animation:none}.gesture-hint{transition:none}}
 @media print{.viewer-controls,.gesture-hint{display:none!important}html,body.presenter{height:auto;overflow:visible}.slide{animation:none!important}.presenter .viewport{height:auto;overflow:visible}}
+
+/* Opening only: keep the accepted lecture and viewer layouts unchanged. */
+.slide.thumbnail-cover{padding:0;background:var(--paper)}
+.slide.thumbnail-cover>img{width:100%;height:100%;object-fit:contain}
+.thumbnail-cover>.kicker,.thumbnail-cover>footer{display:none}
+.intro-focus{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:35px}
+.intro-focus>p{font-size:36px}
+.intro-focus h2{font-size:105px;line-height:1.4;margin:25px 0 36px}
+.intro-focus h2 span{color:var(--teal);white-space:nowrap}
+.intro-focus .intro-lead{font-size:32px}
+.intro-chat .question-body h2{font-size:82px}
+.intro-answer-layout{display:grid;grid-template-columns:1.1fr 1fr;gap:62px;align-items:center;flex:1;min-height:0}
+.intro-answer-layout h2{font-size:59px;margin:22px 0 26px;line-height:1.5}
+.intro-answer-layout .intro-connect{font-size:25px;margin-top:26px;padding-left:18px;border-left:5px solid var(--tiffany)}
+.intro-answer-photos{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:490px}
+.intro-answer-photos img{border-radius:4px}
+.intro-answer-photos img:first-child{object-position:52% center}
+.presenter.read .slide.thumbnail-cover{padding:0;height:100dvh;min-height:100dvh}
+@media(max-width:700px), (max-width:1000px) and (max-height:500px){
+ .read .intro-focus{min-height:420px;padding:25px 0}
+ .read .intro-focus>p{font-size:24px}
+ .presenter.read .slide .intro-focus h2{font-size:48px;line-height:1.6;margin:24px 0 34px}
+ .read .intro-focus h2 span{display:block}
+ .read .intro-focus .intro-lead{font-size:23px}
+ .read .intro-chat .question-body h2{font-size:38px}
+ .read .intro-answer-layout{grid-template-columns:1fr;gap:28px;flex:none}
+ .presenter.read .slide .intro-answer-layout h2{font-size:34px;margin:16px 0 22px}
+ .read .intro-answer-layout p{font-size:22px}
+ .read .intro-answer-layout .intro-connect{font-size:20px;margin-top:22px}
+ .read .intro-answer-photos{height:300px;gap:14px}
+}
+@media print{.slide.thumbnail-cover{height:810px;padding:0}.thumbnail-cover>img{object-fit:contain}}
