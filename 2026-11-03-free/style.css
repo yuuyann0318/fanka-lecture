@@ -109,3 +109,46 @@
   .read .free-closing .pill { font-size:13px; }
   .read .free-closing .details { font-size:15px; }
 }
+
+/* November 3 revisions: suspense, conclusion and opportunity reveal only. */
+.secret-suspense{background:radial-gradient(ellipse at 50% 47%,#285549 0%,#102e2a 48%,#081a1a 100%);color:#fff5d6;text-align:center;isolation:isolate}
+.secret-suspense:before{content:"";position:absolute;inset:27px;border:1px solid #d6b86a99;pointer-events:none;z-index:-1}
+.secret-suspense:after{content:"";position:absolute;inset:39px;border:1px solid #d6b86a35;pointer-events:none;z-index:-1}
+.secret-suspense .secret-stage{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:35px;padding-bottom:15px}
+.secret-suspense .secret-seal{width:138px;height:138px;border:2px solid #edcf87;border-radius:50%;box-shadow:0 0 0 9px #d6b86a16,0 0 55px #ddbc5b20;display:grid;place-items:center;font-size:78px;font-weight:800;color:#ffe8a7;line-height:1}
+.secret-suspense .secret-label{font-size:26px;letter-spacing:.18em;color:#ebd6a2;font-weight:700}
+.secret-suspense .secret-title{font-size:132px;line-height:1.25;font-weight:850;letter-spacing:.04em;margin:0;color:#fff5d6;text-shadow:0 4px 30px #d8b96230}
+.secret-suspense .secret-rule{width:270px;height:2px;background:linear-gradient(90deg,transparent,#e5c77b,transparent)}
+.secret-suspense footer{border-color:#d6b86a45;color:#d4c597;left:68px;right:68px}
+.fan-conclusion .feeling-flow{gap:9px}
+.fan-conclusion .feeling-flow>div{padding:17px 24px}
+.fan-conclusion .feeling-flow p{margin-top:7px}
+.fan-conclusion .feeling-flow .fan-final{display:block;font-size:36px;line-height:1.4;color:var(--teal);margin-top:2px;letter-spacing:-.02em}
+.opportunity-mystery .mosaic-word{display:inline-block;position:relative;width:5.6em;height:1.28em;vertical-align:-.17em;border-radius:3px;overflow:hidden;background:conic-gradient(#536964 25%,#b9c6bd 0 50%,#82998c 0 75%,#dbe1d4 0) 0 0/22px 22px;box-shadow:inset 0 0 0 1px #82998c40}
+.opportunity-mystery .mosaic-word:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 13px,#183c3348 13px 26px);background-size:26px 100%}
+.opportunity-answer .photo-card:last-child{padding:14px;border:3px solid var(--teal);background:#e1f2e9;border-radius:7px;margin:-17px -17px 0}
+.opportunity-answer .photo-card:last-child img{height:330px}
+.opportunity-answer .photo-card:last-child figcaption{padding-top:12px}
+.opportunity-answer .photo-card:last-child b{font-size:44px;line-height:1.45;color:var(--teal);white-space:nowrap;letter-spacing:-.035em}
+.opportunity-answer .reveal-number{font-size:24px;vertical-align:5px;margin-right:9px}
+.read .secret-suspense{min-height:630px}
+.read .secret-suspense .secret-title{font-size:95px}
+.read .secret-suspense .secret-stage{min-height:480px}
+.read .opportunity-answer .photo-card:last-child b{font-size:34px}
+@media(max-width:700px), (max-width:1000px) and (max-height:500px){
+ .presenter.read .secret-suspense{min-height:100dvh;padding:68px 24px}
+ .secret-suspense:before{inset:16px}.secret-suspense:after{inset:23px}
+ .read .secret-suspense .secret-stage{min-height:0;gap:32px;flex:1;padding:10px 0 30px}
+ .read .secret-suspense .secret-seal{width:100px;height:100px;font-size:56px}
+ .read .secret-suspense .secret-label{font-size:17px;letter-spacing:.1em}
+ .presenter.read .secret-suspense .secret-title{font-size:55px;line-height:1.35;white-space:nowrap;letter-spacing:0}
+ .read .secret-suspense .secret-rule{width:170px}
+ .read .fan-conclusion .feeling-flow{gap:10px}
+ .read .fan-conclusion .feeling-flow>div{padding:16px 18px}
+ .read .fan-conclusion .feeling-flow .fan-final{font-size:27px;margin-top:4px}
+ .read .opportunity-mystery .mosaic-word{background-size:16px 16px}
+ .read .opportunity-answer .photo-card:last-child{margin:0;padding:12px}
+ .read .opportunity-answer .photo-card:last-child img{height:274px}
+ .read .opportunity-answer .photo-card:last-child b{font-size:36px}
+ .read .opportunity-answer .reveal-number{font-size:20px;vertical-align:3px;margin-right:7px}
+}
